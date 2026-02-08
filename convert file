@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal File Converter Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <style>
+        :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); }
+        nav { background: var(--dark); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 900px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
+        select, button { padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; }
+        .btn-convert { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-convert:hover { background: #b2322a; }
+        #status { margin-top: 20px; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div style="font-weight: bold; font-size: 1.5rem;">☁️ MyCloudConvert</div>
+    <div>Tools | API | Pricing</div>
+</nav>
+
+<div class="container">
+    <h1>File Converter</h1>
+    <p>Convert anything to anything. 100% Secure & Private.</p>
+
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
+        <input type="file" id="fileInput" style="display:none" onchange="updateFileName()">
+    </div>
+
+    <div>
+        <span>Convert </span>
+        <select id="toFormat">
+            <optgroup label="Images">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="webp">WEBP</option>
+            </optgroup>
+            <optgroup label="Documents">
+                <option value="pdf">PDF</option>
+            </optgroup>
+        </select>
+        <button class="btn-convert" onclick="processConversion()">Convert Now</button>
+    </div>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    function updateFileName() {
+        const input = document.getElementById('fileInput');
+        document.getElementById('fileNameDisplay').innerText = input.files[0] ? input.files[0].name : "No file selected";
+    }
+
+    async function processConversion() {
+        const fileInput = document.getElementById('fileInput');
+        const targetFormat = document.getElementById('toFormat').value;
+        const status = document.getElementById('status');
+
+        if (!fileInput.files[0]) {
+            alert("Pehle file select karein!");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        status.innerText = "Processing... Please wait.";
+
+        try {
+            // Logic for Image to Image
+            if (['png', 'jpg', 'webp'].includes(targetFormat)) {
+                await convertImage(file, targetFormat);
+            } 
+            // Logic for Image to PDF
+            else if (targetFormat === 'pdf') {
+                await convertToPdf(file);
+            }
+            status.innerText = "Conversion Successful! Download started.";
+        } catch (e) {
+            status.innerText = "Error: Conversion fail ho gayi.";
+            console.error(e);
+        }
+    }
+
+    function convertImage(file, format) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                        downloadBlob(blob, `converted.${format}`);
+                        resolve();
+                    }, `image/${format === 'jpg' ? 'jpeg' : format}`);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function convertToPdf(file) {
+        const pdfDoc = await PDFLib.PDFDocument.create();
+        const page = pdfDoc.addPage();
+        const arrayBuffer = await file.arrayBuffer();
+        
+        let image;
+        if (file.type === "image/png") image = await pdfDoc.embedPng(arrayBuffer);
+        else image = await pdfDoc.embedJpg(arrayBuffer);
+
+        page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
+        const pdfBytes = await pdfDoc.save();
+        downloadBlob(new Blob([pdfBytes]), "converted.pdf");
+    }
+
+    function downloadBlob(blob, name) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+    }
+</script>
+
+</body>
+</html>
