@@ -15,7 +15,6 @@
         .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        /* Dropdown Height Fix */
         .custom-select {
             padding: 12px;
             font-size: 1rem;
@@ -25,6 +24,7 @@
             width: 220px;
             vertical-align: middle;
             outline: none;
+            cursor: pointer;
         }
 
         .btn-convert { padding: 12px 25px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; vertical-align: middle; }
@@ -51,9 +51,9 @@
     <div>
         <span>Convert to </span>
         <select id="toFormat" class="custom-select" 
-                onfocus="if(this.options.length > 5){this.size=8;}" 
-                onblur="this.size=1;" 
-                onchange="this.size=1; this.blur();">
+                onmousedown="if(this.options.length > 8){this.size=9;}" 
+                onchange="this.size=0;" 
+                onblur="this.size=0;">
             <optgroup label="Standard Formats">
                 <option value="jpg">JPG / JPEG</option>
                 <option value="png">PNG</option>
@@ -110,7 +110,7 @@
             }
             status.innerText = "Conversion Successful!";
         } catch (e) {
-            status.innerText = "Error during conversion.";
+            status.innerText = "Error: File support missing or corrupt.";
             console.error(e);
         }
     }
@@ -130,8 +130,7 @@
                     canvas.width = img.width; canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    let mimeType = `image/${format}`;
-                    if (format === 'jpg') mimeType = 'image/jpeg';
+                    let mimeType = (format === 'jpg') ? 'image/jpeg' : `image/${format}`;
                     canvas.toBlob((blob) => {
                         downloadBlob(blob, `converted.${format}`);
                         resolve();
@@ -147,7 +146,12 @@
         const pdfDoc = await PDFLib.PDFDocument.create();
         const page = pdfDoc.addPage();
         const arrayBuffer = await file.arrayBuffer();
-        let image = await pdfDoc.embedJpg(arrayBuffer);
+        let image;
+        try {
+            image = await pdfDoc.embedJpg(arrayBuffer);
+        } catch {
+            image = await pdfDoc.embedPng(arrayBuffer);
+        }
         page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
