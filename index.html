@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1674/1674511.png"> <title>My Cloud Converter</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1674/1674511.png">
+    <title>My Cloud Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); }
         nav { background: var(--dark); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         .container { max-width: 900px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; }
         .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         select, button { padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; }
@@ -21,7 +21,7 @@
 </head>
 <body>
 
-<nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: #222; color: white;">
+<nav>
     <div style="font-weight: bold; font-size: 1.5rem;">MyCloudConvert</div>
     <div style="font-size: 1.5rem;">☁️</div>
 </nav>
@@ -30,43 +30,41 @@
     <h1>File Converter</h1>
     <p>Convert anything to anything. 100% Secure & Private.</p>
 
-<div class="upload-box" onclick="document.getElementById('fileInput').click()" style="border: 2px dashed #ccc; padding: 40px; text-align: center; cursor: pointer;">
-    <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
-    <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
-</div>
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
+        <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
+    </div>
+
     <div>
-        <span>Convert </span>
-<select id="toFormat" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-    <optgroup label="Images">
-        <option value="png">PNG</option>
-        <option value="jpg">JPG</option>
-        <option value="webp">WEBP</option>
-        <option value="bmp">BMP</option>
-        <option value="gif">GIF</option>
-        <option value="ico">ICO (Favicon)</option>
-        <option value="tiff">TIFF</option>
-    </optgroup>
-    <optgroup label="Documents">
-        <option value="pdf">PDF</option>
-    </optgroup>
-</select>
+        <span>Convert to </span>
+        <select id="toFormat">
+            <optgroup label="Images">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="webp">WEBP</option>
+                <option value="bmp">BMP</option>
+            </optgroup>
+            <optgroup label="Documents">
+                <option value="pdf">PDF</option>
+            </optgroup>
+        </select>
         <button class="btn-convert" onclick="processConversion()">Convert Now</button>
     </div>
 
     <div id="status"></div>
 </div>
 
-function updateFileName(event) {
-    const input = event.target;
-    const display = document.getElementById('fileNameDisplay');
-    if (input.files && input.files[0]) {
-        // Ye line box mein file ka naam dikhayegi
-        display.innerText = "Selected: " + input.files[0].name;
-        console.log("Client-side engine ready for: " + input.files[0].name);
-    } else {
-        display.innerText = "Click or Drag & Drop File Here";
+<script>
+    // Line 59-67: Ye function file ka naam box mein dikhayega
+    function updateFileName(event) {
+        const input = event.target;
+        const display = document.getElementById('fileNameDisplay');
+        if (input.files && input.files[0]) {
+            display.innerText = "Selected: " + input.files[0].name;
+            console.log("File loaded!");
+        }
     }
-}
+
     async function processConversion() {
         const fileInput = document.getElementById('fileInput');
         const targetFormat = document.getElementById('toFormat').value;
@@ -78,17 +76,12 @@ function updateFileName(event) {
         }
 
         const file = fileInput.files[0];
-// Naya Logic: Sab formats allow karne ke liye
-const imageFormats = ['png', 'jpg', 'webp', 'bmp', 'gif', 'ico', 'tiff'];
-if (imageFormats.includes(targetFormat)) {
-    await convertImage(file, targetFormat);
-}
-            // Logic for Image to Image
-            if (['png', 'jpg', 'webp'].includes(targetFormat)) {
+        status.innerText = "Processing... Please wait.";
+
+        try {
+            if (['png', 'jpg', 'webp', 'bmp'].includes(targetFormat)) {
                 await convertImage(file, targetFormat);
-            } 
-            // Logic for Image to PDF
-            else if (targetFormat === 'pdf') {
+            } else if (targetFormat === 'pdf') {
                 await convertToPdf(file);
             }
             status.innerText = "Conversion Successful! Download started.";
@@ -123,11 +116,9 @@ if (imageFormats.includes(targetFormat)) {
         const pdfDoc = await PDFLib.PDFDocument.create();
         const page = pdfDoc.addPage();
         const arrayBuffer = await file.arrayBuffer();
-        
         let image;
         if (file.type === "image/png") image = await pdfDoc.embedPng(arrayBuffer);
         else image = await pdfDoc.embedJpg(arrayBuffer);
-
         page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
