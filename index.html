@@ -38,14 +38,17 @@
     <div>
         <span>Convert to </span>
         <select id="toFormat">
-            <optgroup label="Images">
+            <optgroup label="Popular Formats">
+                <option value="jpg">JPG / JPEG</option>
                 <option value="png">PNG</option>
-                <option value="jpg">JPG</option>
                 <option value="webp">WEBP</option>
-                <option value="bmp">BMP</option>
-            </optgroup>
-            <optgroup label="Documents">
                 <option value="pdf">PDF</option>
+            </optgroup>
+            <optgroup label="Other Formats">
+                <option value="ico">ICO</option>
+                <option value="gif">GIF</option>
+                <option value="bmp">BMP</option>
+                <option value="tiff">TIFF</option>
             </optgroup>
         </select>
         <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -55,13 +58,13 @@
 </div>
 
 <script>
-    // Line 59-67: Ye function file ka naam box mein dikhayega
+    // File select hote hi naam dikhane ka function
     function updateFileName(event) {
         const input = event.target;
         const display = document.getElementById('fileNameDisplay');
         if (input.files && input.files[0]) {
             display.innerText = "Selected: " + input.files[0].name;
-            console.log("File loaded!");
+            console.log("Client-side ready: " + input.files[0].name);
         }
     }
 
@@ -79,10 +82,10 @@
         status.innerText = "Processing... Please wait.";
 
         try {
-            if (['png', 'jpg', 'webp', 'bmp'].includes(targetFormat)) {
-                await convertImage(file, targetFormat);
-            } else if (targetFormat === 'pdf') {
+            if (targetFormat === 'pdf') {
                 await convertToPdf(file);
+            } else {
+                await convertImage(file, targetFormat);
             }
             status.innerText = "Conversion Successful! Download started.";
         } catch (e) {
@@ -91,6 +94,7 @@
         }
     }
 
+    // Fast Client-side conversion engine
     function convertImage(file, format) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -100,11 +104,18 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Handling different formats
+                    let mimeType = `image/${format}`;
+                    if (format === 'jpg') mimeType = 'image/jpeg';
+                    if (format === 'ico') mimeType = 'image/x-icon';
+
                     canvas.toBlob((blob) => {
                         downloadBlob(blob, `converted.${format}`);
                         resolve();
-                    }, `image/${format === 'jpg' ? 'jpeg' : format}`);
+                    }, mimeType);
                 };
                 img.src = e.target.result;
             };
@@ -119,7 +130,11 @@
         let image;
         if (file.type === "image/png") image = await pdfDoc.embedPng(arrayBuffer);
         else image = await pdfDoc.embedJpg(arrayBuffer);
-        page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
+        
+        // Adjusting image to fit PDF page
+        const { width, height } = image.scale(0.5);
+        page.drawImage(image, { x: 50, y: 300, width: 500, height: 400 });
+        
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
     }
@@ -130,6 +145,7 @@
         a.href = url;
         a.download = name;
         a.click();
+        URL.revokeObjectURL(url);
     }
 </script>
 
