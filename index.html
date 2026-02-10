@@ -12,11 +12,22 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); }
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         .container { max-width: 900px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
-        /* Line 16: Dropdown Styling fix */
-        select, button { padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; vertical-align: middle; }
-        .btn-convert { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        
+        /* Dropdown Height Fix */
+        .custom-select {
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            width: 220px;
+            vertical-align: middle;
+            outline: none;
+        }
+
+        .btn-convert { padding: 12px 25px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; vertical-align: middle; }
         .btn-convert:hover { background: #b2322a; }
         #status { margin-top: 20px; color: #666; font-style: italic; }
     </style>
@@ -39,7 +50,10 @@
 
     <div>
         <span>Convert to </span>
-        <select id="toFormat" style="max-width: 200px;">
+        <select id="toFormat" class="custom-select" 
+                onfocus="if(this.options.length > 5){this.size=8;}" 
+                onblur="this.size=1;" 
+                onchange="this.size=1; this.blur();">
             <optgroup label="Standard Formats">
                 <option value="jpg">JPG / JPEG</option>
                 <option value="png">PNG</option>
@@ -70,9 +84,6 @@
         const display = document.getElementById('fileNameDisplay');
         if (input.files && input.files[0]) {
             display.innerText = "Selected: " + input.files[0].name;
-            console.log("Client-side engine ready for: " + input.files[0].name);
-        } else {
-            display.innerText = "Click or Drag & Drop File Here";
         }
     }
 
@@ -87,7 +98,7 @@
         }
 
         const file = fileInput.files[0];
-        status.innerText = "Processing " + targetFormat.toUpperCase() + "... Please wait.";
+        status.innerText = "Processing... Please wait.";
 
         try {
             if (targetFormat === 'pdf') {
@@ -97,9 +108,9 @@
             } else {
                 await convertImage(file, targetFormat);
             }
-            status.innerText = "Conversion Successful! Download started.";
+            status.innerText = "Conversion Successful!";
         } catch (e) {
-            status.innerText = "Error: Conversion fail ho gayi.";
+            status.innerText = "Error during conversion.";
             console.error(e);
         }
     }
@@ -116,26 +127,16 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = img.width; canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    
                     let mimeType = `image/${format}`;
                     if (format === 'jpg') mimeType = 'image/jpeg';
-                    if (format === 'ico') mimeType = 'image/x-icon';
-                    if (format === 'svg') mimeType = 'image/svg+xml';
-
                     canvas.toBlob((blob) => {
-                        if (blob) {
-                            downloadBlob(blob, `converted.${format}`);
-                            resolve();
-                        } else {
-                            reject();
-                        }
+                        downloadBlob(blob, `converted.${format}`);
+                        resolve();
                     }, mimeType);
                 };
-                img.onerror = reject;
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
@@ -146,9 +147,7 @@
         const pdfDoc = await PDFLib.PDFDocument.create();
         const page = pdfDoc.addPage();
         const arrayBuffer = await file.arrayBuffer();
-        let image;
-        if (file.type === "image/png") image = await pdfDoc.embedPng(arrayBuffer);
-        else image = await pdfDoc.embedJpg(arrayBuffer);
+        let image = await pdfDoc.embedJpg(arrayBuffer);
         page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
@@ -157,9 +156,7 @@
     function downloadBlob(blob, name) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = name;
-        a.click();
+        a.href = url; a.download = name; a.click();
         URL.revokeObjectURL(url);
     }
 </script>
