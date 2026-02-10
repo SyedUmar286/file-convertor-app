@@ -30,11 +30,10 @@
     <h1>File Converter</h1>
     <p>Convert anything to anything. 100% Secure & Private.</p>
 
-<div class="upload-box" onclick="document.getElementById('fileInput').click()">
+<div class="upload-box" onclick="document.getElementById('fileInput').click()" style="border: 2px dashed #ccc; padding: 40px; text-align: center; cursor: pointer;">
     <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
-<input type="file" id="fileInput" style="display:none" onchange="updateFileName">
+    <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
 </div>
-
     <div>
         <span>Convert </span>
 <select id="toFormat" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
@@ -61,9 +60,11 @@ function updateFileName(event) {
     const input = event.target;
     const display = document.getElementById('fileNameDisplay');
     if (input.files && input.files[0]) {
+        // Ye line box mein file ka naam dikhayegi
         display.innerText = "Selected: " + input.files[0].name;
-        // Ye line fast conversion ko ready karti hai
         console.log("Client-side engine ready for: " + input.files[0].name);
+    } else {
+        display.innerText = "Click or Drag & Drop File Here";
     }
 }
     async function processConversion() {
