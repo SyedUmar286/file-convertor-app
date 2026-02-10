@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1674/1674511.png">
     <title>My Cloud Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); }
@@ -38,17 +39,22 @@
     <div>
         <span>Convert to </span>
         <select id="toFormat">
-            <optgroup label="Popular Formats">
+            <optgroup label="Standard Formats">
                 <option value="jpg">JPG / JPEG</option>
                 <option value="png">PNG</option>
                 <option value="webp">WEBP</option>
                 <option value="pdf">PDF</option>
-            </optgroup>
-            <optgroup label="Other Formats">
                 <option value="ico">ICO</option>
                 <option value="gif">GIF</option>
                 <option value="bmp">BMP</option>
                 <option value="tiff">TIFF</option>
+            </optgroup>
+            <optgroup label="Advanced Formats (NEW)">
+                <option value="svg">SVG</option>
+                <option value="heic">HEIC</option>
+                <option value="raw">RAW</option>
+                <option value="psd">PSD</option>
+                <option value="eps">EPS</option>
             </optgroup>
         </select>
         <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -58,13 +64,11 @@
 </div>
 
 <script>
-    // File select hote hi naam dikhane ka function
     function updateFileName(event) {
         const input = event.target;
         const display = document.getElementById('fileNameDisplay');
         if (input.files && input.files[0]) {
             display.innerText = "Selected: " + input.files[0].name;
-            console.log("Client-side ready: " + input.files[0].name);
         }
     }
 
@@ -79,24 +83,30 @@
         }
 
         const file = fileInput.files[0];
-        status.innerText = "Processing... Please wait.";
+        status.innerText = "Processing " + targetFormat.toUpperCase() + "... Please wait.";
 
         try {
             if (targetFormat === 'pdf') {
                 await convertToPdf(file);
+            } else if (targetFormat === 'heic') {
+                await convertHeic(file);
             } else {
                 await convertImage(file, targetFormat);
             }
             status.innerText = "Conversion Successful! Download started.";
         } catch (e) {
-            status.innerText = "Error: Conversion fail ho gayi.";
+            status.innerText = "Error: This format needs server-side processing or file is corrupt.";
             console.error(e);
         }
     }
 
-    // Fast Client-side conversion engine
+    async function convertHeic(file) {
+        const blob = await heic2any({ blob: file, toType: "image/jpeg" });
+        downloadBlob(blob, "converted.jpg");
+    }
+
     function convertImage(file, format) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
@@ -107,16 +117,21 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
                     
-                    // Handling different formats
                     let mimeType = `image/${format}`;
                     if (format === 'jpg') mimeType = 'image/jpeg';
                     if (format === 'ico') mimeType = 'image/x-icon';
+                    if (format === 'svg') mimeType = 'image/svg+xml';
 
                     canvas.toBlob((blob) => {
-                        downloadBlob(blob, `converted.${format}`);
-                        resolve();
+                        if (blob) {
+                            downloadBlob(blob, `converted.${format}`);
+                            resolve();
+                        } else {
+                            reject();
+                        }
                     }, mimeType);
                 };
+                img.onerror = reject;
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
@@ -130,11 +145,7 @@
         let image;
         if (file.type === "image/png") image = await pdfDoc.embedPng(arrayBuffer);
         else image = await pdfDoc.embedJpg(arrayBuffer);
-        
-        // Adjusting image to fit PDF page
-        const { width, height } = image.scale(0.5);
         page.drawImage(image, { x: 50, y: 300, width: 500, height: 400 });
-        
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
     }
