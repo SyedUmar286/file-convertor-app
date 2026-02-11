@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Free Online File Converter | PNG, JPG, PDF, HEIC & More</title>
+    <meta name="description" content="Convert images to 14+ formats instantly. Secure, private, and 100% free browser-based tool. No server uploads.">
+    <meta name="keywords" content="image converter, PNG to JPG, HEIC to JPG, WebP converter, PDF creator, free online converter">
+    
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1674/1674511.png">
-    <title>My Cloud Converter</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
+    
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); }
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .container { max-width: 900px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 900px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; z-index: 2; }
         .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        .custom-select {
-            padding: 12px;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin: 10px;
-            width: 220px;
-            vertical-align: middle;
-            outline: none;
-            cursor: pointer;
-        }
-
+        /* Dropdown Fix - Scrollbar & Hint */
+        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 220px; vertical-align: middle; outline: none; cursor: pointer; }
         .btn-convert { padding: 12px 25px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; vertical-align: middle; }
         .btn-convert:hover { background: #b2322a; }
         #status { margin-top: 20px; color: #666; font-style: italic; }
+
+        /* 2. Hidden SEO Content (Sirf Google ko nazar ayega) */
+        .seo-hidden {
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -38,6 +44,11 @@
     <div style="font-weight: bold; font-size: 1.5rem;">MyCloudConvert</div>
     <div style="font-size: 1.5rem;">☁️</div>
 </nav>
+
+<div class="seo-hidden">
+    <h1>Free Online Image Converter</h1>
+    <p>Convert PNG to JPG, HEIC to JPEG, and images to PDF. Our tool supports WebP, SVG, ICO, GIF, BMP, TIFF, RAW, PSD, and EPS formats. Everything is processed locally in your browser for 100% privacy.</p>
+</div>
 
 <div class="container">
     <h1>File Converter</h1>
@@ -84,6 +95,7 @@
         const display = document.getElementById('fileNameDisplay');
         if (input.files && input.files[0]) {
             display.innerText = "Selected: " + input.files[0].name;
+            console.log("Local processing ready: " + input.files[0].name);
         }
     }
 
@@ -108,9 +120,9 @@
             } else {
                 await convertImage(file, targetFormat);
             }
-            status.innerText = "Conversion Successful!";
+            status.innerText = "Conversion Successful! Download started.";
         } catch (e) {
-            status.innerText = "Error: File support missing or corrupt.";
+            status.innerText = "Error: File support missing.";
             console.error(e);
         }
     }
@@ -147,11 +159,8 @@
         const page = pdfDoc.addPage();
         const arrayBuffer = await file.arrayBuffer();
         let image;
-        try {
-            image = await pdfDoc.embedJpg(arrayBuffer);
-        } catch {
-            image = await pdfDoc.embedPng(arrayBuffer);
-        }
+        try { image = await pdfDoc.embedJpg(arrayBuffer); }
+        catch { image = await pdfDoc.embedPng(arrayBuffer); }
         page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
         const pdfBytes = await pdfDoc.save();
         downloadBlob(new Blob([pdfBytes]), "converted.pdf");
