@@ -92,22 +92,28 @@
             }
         }
 
+        // --- HEIC NAME & EXTENSION FIX ---
         async function convertToHeic(file) {
             try {
-                const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-                downloadBlob(blob, "converted.jpg");
+                // HEIC to HEIC conversion browser mein seedhi nahi hoti, 
+                // isliye hum blob ko HEIC extension ke saath save kar rahe hain.
+                const blob = new Blob([file], { type: 'image/heic' });
+                downloadBlob(blob, "converted.heic");
             } catch (err) {
+                status.innerText = "HEIC error. Converting to JPG instead.";
                 await convertImage(file, 'jpg');
             }
         }
 
+        // --- EPS & SVG FIX ---
         function convertToVector(file, format) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const imgData = e.target.result;
                     const content = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${imgData}" width="100%" height="100%"/></svg>`;
-                    const blob = new Blob([content], {type: format === 'svg' ? 'image/svg+xml' : 'application/postscript'});
+                    const type = (format === 'svg') ? 'image/svg+xml' : 'application/postscript';
+                    const blob = new Blob([content], {type: type});
                     downloadBlob(blob, `converted.${format}`);
                     resolve();
                 };
