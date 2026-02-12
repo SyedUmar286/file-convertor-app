@@ -14,37 +14,37 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Box size fixed exactly as per your image */
+        /* Adjusted for more Width and less Height */
         .container { 
-            max-width: 850px; /* Perfect width as per Screenshot */
+            max-width: 950px; /* Chorai barha di */
             width: 95%; 
-            margin: 50px auto 25px auto; 
+            margin: 40px auto 20px auto; 
             text-align: center; 
             background: white; 
-            padding: 40px; /* Balanced padding */
-            border-radius: 8px; 
+            padding: 30px 50px; /* Lambai (top/bottom) kam kar di */
+            border-radius: 10px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
             position: relative; 
         }
 
         .upload-box { 
             border: 2px dashed #ccc; 
-            padding: 50px 20px; 
-            margin: 25px 0; 
+            padding: 40px 20px; /* Height of upload area reduced */
+            margin: 20px 0; 
             border-radius: 10px; 
             cursor: pointer; 
             transition: 0.3s; 
         }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 220px; vertical-align: middle; outline: none; cursor: pointer; }
-        .btn-convert { padding: 12px 30px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 230px; vertical-align: middle; outline: none; cursor: pointer; }
+        .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-convert:hover { background: #b2322a; }
         
-        #status { margin-top: 20px; color: #666; font-style: italic; }
+        #status { margin-top: 15px; color: #666; font-style: italic; }
 
-        /* Info Section (Untouched) */
-        .info-section { max-width: 850px; margin: 0 auto 50px auto; padding: 0 20px; text-align: left; }
+        /* Info Section matching the new width */
+        .info-section { max-width: 950px; margin: 0 auto 50px auto; padding: 0 20px; text-align: left; }
         .info-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
         .info-card h3 { color: var(--dark); margin-top: 0; font-size: 1.2rem; }
         .info-card p { color: #555; line-height: 1.6; margin: 8px 0; font-size: 0.95rem; }
@@ -58,11 +58,11 @@
     </nav>
 
     <div class="container">
-        <h1>File Converter</h1>
-        <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
+        <h1 style="margin-bottom: 5px;">File Converter</h1>
+        <p style="color: #666; margin-bottom: 20px;">Convert your files instantly. 100% Secure & Private.</p>
 
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            <p id="fileNameDisplay" style="color: #444;">Click or Drag & Drop File Here</p>
+            <p id="fileNameDisplay" style="color: #444; font-weight: 500;">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .docx, .heic">
         </div>
 
