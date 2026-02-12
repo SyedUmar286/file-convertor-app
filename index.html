@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>MyCloudConvert | Best Free Online File Converter (100% Private)</title>
-    <meta name="description" content="Convert files instantly with MyCloudConvert. Secure, browser-based converter for PDF, PNG, JPG, HEIC, SVG, and EPS. No uploads, 100% private.">
+    <title>MyCloudConvert | 100% Private File Converter</title>
+    <meta name="description" content="Free online converter for PDF, PNG, JPG, HEIC, SVG, and EPS.">
     
     <link rel="icon" type="image/png" href="./logo.png">
     <link rel="apple-touch-icon" href="./logo.png">
-    <link rel="shortcut icon" href="./logo.png" type="image/png">
+    <link rel="shortcut icon" href="./logo.png">
     <meta property="og:image" content="./logo.png">
-    <meta name="twitter:image" content="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
@@ -37,7 +36,7 @@
         }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 230px; cursor: pointer; }
+        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 250px; cursor: pointer; }
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         
         footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
@@ -46,7 +45,7 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; text-align: left; }
 
-        .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; text-align: left; }
+        .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
         .info-card { background: #fff; padding: 20px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
@@ -63,17 +62,26 @@
         <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
-            <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .heic">
+            <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
         </div>
         <div>
             <span>Convert to </span>
             <select id="toFormat" class="custom-select">
                 <optgroup label="Standard Formats">
-                    <option value="jpg">JPG</option><option value="png">PNG</option>
-                    <option value="webp">WEBP</option><option value="pdf">PDF</option>
+                    <option value="jpg">JPG / JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WEBP</option>
+                    <option value="pdf">PDF</option>
+                    <option value="ico">ICO</option>
+                    <option value="gif">GIF</option>
+                    <option value="bmp">BMP</option>
+                    <option value="tiff">TIFF</option>
                 </optgroup>
-                <optgroup label="Advanced Formats">
-                    <option value="svg">SVG</option><option value="heic">HEIC</option>
+                <optgroup label="Advanced Formats (NEW)">
+                    <option value="svg">SVG</option>
+                    <option value="heic">HEIC</option>
+                    <option value="raw">RAW</option>
+                    <option value="psd">PSD</option>
                     <option value="eps">EPS</option>
                 </optgroup>
             </select>
@@ -85,8 +93,8 @@
     <div class="info-section">
         <div class="info-card">
             <h3>Quick Guide:</h3>
-            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
-            <p>• <b>Design:</b> Sleek wide layout optimized for all devices.</p>
+            <p>• <b>Privacy:</b> Your files are never uploaded. Everything stays in your browser.</p>
+            <p>• <b>Sleek Layout:</b> High-performance converter with local processing.</p>
         </div>
     </div>
 
@@ -100,7 +108,7 @@
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
             <h2>Privacy Policy</h2>
-            <p>At MyCloudConvert, your privacy is our priority. Your files stay on your device and are never uploaded to any server.</p>
+            <p>We do not store your data. All conversions happen on your local machine.</p>
         </div>
     </div>
 
@@ -108,14 +116,12 @@
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
             <h2>Contact Us</h2>
-            <p>Have questions or feedback? Feel free to reach out to us at:</p>
             <p>Email: <b>usyed8361@gmail.com</b></p> </div>
     </div>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        window.onclick = function(event) { if (event.target.className === 'modal') { event.target.style.display = "none"; } }
 
         function updateFileName(event) {
             const display = document.getElementById('fileNameDisplay');
@@ -129,19 +135,23 @@
             const file = fileInput.files[0];
             if (!file) { alert("Please select a file first!"); return; }
             status.innerText = "Processing...";
+            
             try {
                 if (targetFormat === 'pdf') { await convertToPdf(file); }
                 else if (targetFormat === 'eps') { await convertToEps(file); }
                 else if (targetFormat === 'svg') { await convertToSvg(file); }
                 else { await convertImage(file, targetFormat); }
                 status.innerText = "Success! Download started.";
-            } catch (e) { status.innerText = "Error: Conversion failed."; }
+            } catch (e) { 
+                console.error(e);
+                status.innerText = "Error: Conversion failed."; 
+            }
         }
 
         function convertToEps(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = () => {
                     const eps = ['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 800 600','%%EOF'].join('\n');
                     downloadBlob(new Blob([eps], { type: 'application/postscript' }), "converted.eps");
                     resolve();
@@ -182,8 +192,11 @@
         async function convertToPdf(file) {
             const pdfDoc = await PDFLib.PDFDocument.create();
             const page = pdfDoc.addPage();
-            const image = await pdfDoc.embedJpg(await file.arrayBuffer());
-            page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
+            const imageBytes = await file.arrayBuffer();
+            let image;
+            if (file.type === "image/jpeg" || file.type === "image/jpg") { image = await pdfDoc.embedJpg(imageBytes); }
+            else { image = await pdfDoc.embedPng(imageBytes); }
+            page.drawImage(image, { x: 50, y: 400, width: 500, height: 400 });
             downloadBlob(new Blob([await pdfDoc.save()]), "converted.pdf");
         }
 
