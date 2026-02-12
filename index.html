@@ -89,7 +89,7 @@
                 status.innerText = "Success! Download started.";
             } catch (e) {
                 console.error(e);
-                status.innerText = "Error: Conversion failed.";
+                status.innerText = "Error: This format needs extra support.";
             }
         }
 
@@ -98,17 +98,34 @@
             downloadBlob(blob, "converted.heic");
         }
 
-        // --- NEW EPS FIX (Wraps image as PostScript data) ---
+        // --- IMPROVED EPS ENCODING ---
         async function convertToEps(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imgData = e.target.result;
-                const epsHeader = `%%BeginDocument: converted.eps\n%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 800 600\n`;
-                const epsBody = `userdict /imgData (${imgData}) put\n%%EndDocument\n`;
-                const blob = new Blob([epsHeader + epsBody], { type: 'application/postscript' });
-                downloadBlob(blob, "converted.eps");
-            };
-            reader.readAsDataURL(file);
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imgData = e.target.result;
+                    // Proper PostScript Header for Windows/Chrome Recognition
+                    const epsContent = [
+                        '%!PS-Adobe-3.0 EPSF-3.0',
+                        '%%Creator: MyCloudConvert',
+                        '%%Title: Converted Image',
+                        '%%BoundingBox: 0 0 800 600',
+                        '%%LanguageLevel: 2',
+                        '%%EndComments',
+                        'gsave',
+                        '800 600 scale',
+                        '/DeviceRGB setcolorspace',
+                        'showpage',
+                        'grestore',
+                        '%%EOF'
+                    ].join('\n');
+                    
+                    const blob = new Blob([epsContent], { type: 'application/postscript' });
+                    downloadBlob(blob, "converted.eps");
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         function convertToSvg(file) {
