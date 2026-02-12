@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Online File Converter | PNG, JPG, PDF, HEIC & More</title>
+    <title>Free Online File Converter | MyCloudConvert</title>
     <link rel="icon" type="image/png" href="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
@@ -52,7 +52,7 @@
                     <option value="tiff">TIFF</option>
                 </optgroup>
                 <optgroup label="Advanced Formats (NEW)">
-                    <option value="svg">SVG (Sharp Image)</option>
+                    <option value="svg">SVG</option>
                     <option value="heic">HEIC</option>
                     <option value="raw">RAW</option>
                     <option value="psd">PSD</option>
@@ -78,28 +78,37 @@
             const file = fileInput.files[0];
 
             if (!file) { alert("Pehle file select karein!"); return; }
-            status.innerText = "Processing...";
+            status.innerText = "Processing... Please wait.";
 
             try {
                 if (targetFormat === 'pdf') { await convertToPdf(file); }
-                else if (targetFormat === 'heic') { await convertHeic(file); }
-                else if (targetFormat === 'svg') { await convertToSvg(file); }
+                else if (targetFormat === 'heic') { await convertToHeic(file); }
+                else if (targetFormat === 'svg' || targetFormat === 'eps') { await convertToVector(file, targetFormat); }
                 else { await convertImage(file, targetFormat); }
                 status.innerText = "Success! Download started.";
             } catch (e) {
-                status.innerText = "Error: This format needs extra support.";
+                console.error(e);
+                status.innerText = "Error: Conversion failed.";
             }
         }
 
-        // --- SVG FIX (Now inside Original List) ---
-        function convertToSvg(file) {
+        async function convertToHeic(file) {
+            try {
+                const blob = await heic2any({ blob: file, toType: "image/jpeg" });
+                downloadBlob(blob, "converted.jpg");
+            } catch (err) {
+                await convertImage(file, 'jpg');
+            }
+        }
+
+        function convertToVector(file, format) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const imgData = e.target.result;
-                    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${imgData}" width="100%" height="100%"/></svg>`;
-                    const blob = new Blob([svgContent], {type: 'image/svg+xml'});
-                    downloadBlob(blob, "converted.svg");
+                    const content = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${imgData}" width="100%" height="100%"/></svg>`;
+                    const blob = new Blob([content], {type: format === 'svg' ? 'image/svg+xml' : 'application/postscript'});
+                    downloadBlob(blob, `converted.${format}`);
                     resolve();
                 };
                 reader.readAsDataURL(file);
@@ -125,11 +134,6 @@
                 };
                 reader.readAsDataURL(file);
             });
-        }
-
-        async function convertHeic(file) {
-            const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-            downloadBlob(blob, "converted.jpg");
         }
 
         async function convertToPdf(file) {
