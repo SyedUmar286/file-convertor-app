@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>MyCloudConvert | Best Free Online File Converter</title>
-    <meta name="description" content="Convert PNG, JPG, PDF, HEIC, SVG, EPS, RAW, and PSD formats instantly. 100% Private and Secure.">
+    <title>MyCloudConvert | 100% Private File Converter</title>
+    <meta name="description" content="Convert files locally: PDF, PNG, JPG, HEIC, SVG, EPS, RAW, PSD.">
     
     <link rel="icon" type="image/png" href="./logo.png">
     <link rel="apple-touch-icon" href="./logo.png">
@@ -19,7 +19,7 @@
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* Nav Bar with Clouds on Both Sides */
+        /* Nav Bar with Double Clouds */
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         .nav-left { display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 1.5rem; }
         .cloud-icon { font-size: 1.5rem; }
@@ -27,8 +27,7 @@
         .container { 
             max-width: 950px; width: 95%; margin: 40px auto 20px auto; 
             text-align: center; background: white; padding: 30px 50px; 
-            border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            position: relative; z-index: 10;
+            border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
         }
 
         .upload-box { 
@@ -37,10 +36,10 @@
         }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        /* Dropdown Fix: Ensuring no scroll and full visibility */
+        /* Scroll Fix: Removed forced heights to allow native browser scroll */
         .custom-select { 
             padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; 
-            margin: 10px; width: 260px; cursor: pointer; background: white;
+            margin: 10px; width: 260px; cursor: pointer; 
         }
         
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
@@ -48,7 +47,6 @@
         footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
         footer a { color: var(--primary); text-decoration: none; margin: 0 10px; cursor: pointer; }
         
-        /* Modal Style */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; text-align: left; }
 
@@ -100,8 +98,8 @@
     <div class="info-section">
         <div class="info-card">
             <h3>Quick Guide:</h3>
-            <p>• <b>Privacy:</b> 100% local browser conversion. Your files never leave your device.</p>
-            <p>• <b>Vector Support:</b> Professional support for SVG and EPS formats.</p>
+            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
+            <p>• <b>Formats:</b> Convert to JPG, PNG, PDF, and Advanced Vector formats.</p>
         </div>
     </div>
 
@@ -115,7 +113,7 @@
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
             <h2>Privacy Policy</h2>
-            <p>Your privacy is strictly protected. Files are processed locally in your browser.</p>
+            <p>Your data is processed locally in your browser and never sent to any server.</p>
         </div>
     </div>
 
