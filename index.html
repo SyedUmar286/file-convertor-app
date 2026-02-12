@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Online File Converter | PNG, JPG, PDF, HEIC & More</title>
     <link rel="icon" type="image/png" href="./logo.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
 
@@ -39,15 +40,23 @@
 
         <div>
             <span>Convert to </span>
-            <select id="toFormat" class="custom-select">
+            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length > 8){this.size=9;}" onchange="this.size=0;" onblur="this.size=0;">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
                     <option value="png">PNG</option>
                     <option value="webp">WEBP</option>
                     <option value="pdf">PDF</option>
+                    <option value="ico">ICO</option>
+                    <option value="gif">GIF</option>
+                    <option value="bmp">BMP</option>
+                    <option value="tiff">TIFF</option>
                 </optgroup>
-                <optgroup label="Advanced Formats">
+                <optgroup label="Advanced Formats (NEW)">
                     <option value="svg">SVG (Sharp Image)</option>
+                    <option value="heic">HEIC</option>
+                    <option value="raw">RAW</option>
+                    <option value="psd">PSD</option>
+                    <option value="eps">EPS</option>
                 </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -78,11 +87,11 @@
                 else { await convertImage(file, targetFormat); }
                 status.innerText = "Success! Download started.";
             } catch (e) {
-                status.innerText = "Error during conversion.";
+                status.innerText = "Error: This format needs extra support.";
             }
         }
 
-        // --- NEW SVG FIX ---
+        // --- SVG FIX (Now inside Original List) ---
         function convertToSvg(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
