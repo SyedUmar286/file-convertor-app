@@ -12,37 +12,61 @@
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
-        nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .container { max-width: 900px; margin: 50px auto 20px auto; text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
-        .upload-box { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        nav { background: var(--dark); padding: 1.2rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Box ko thora bara aur spacious kiya hai */
+        .container { 
+            max-width: 1000px; /* Increased width */
+            margin: 60px auto 30px auto; 
+            text-align: center; 
+            background: white; 
+            padding: 50px; /* Increased padding */
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            position: relative; 
+        }
+
+        .upload-box { 
+            border: 2px dashed #ccc; 
+            padding: 60px; /* Bigger upload area */
+            margin: 30px 0; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
-        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 220px; vertical-align: middle; outline: none; cursor: pointer; }
-        .btn-convert { padding: 12px 25px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        .custom-select { padding: 14px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 250px; vertical-align: middle; outline: none; cursor: pointer; }
+        .btn-convert { padding: 14px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-convert:hover { background: #b2322a; }
-        #status { margin-top: 20px; color: #666; font-style: italic; }
-        .info-section { max-width: 900px; margin: 0 auto 50px auto; padding: 20px; text-align: left; font-size: 0.9rem; color: #555; border-top: 1px solid #ddd; }
-        .info-section h3 { color: var(--dark); font-size: 1.1rem; margin-bottom: 10px; }
-        .info-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        #status { margin-top: 25px; color: #666; font-style: italic; font-size: 1.1rem; }
+
+        /* Information Section - Kept exactly as requested */
+        .info-section { max-width: 1000px; margin: 0 auto 60px auto; padding: 0 20px; text-align: left; }
+        .info-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
+        .info-card h3 { color: var(--dark); margin-top: 0; font-size: 1.3rem; }
+        .info-card p { color: #555; line-height: 1.6; margin: 10px 0; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="font-weight: bold; font-size: 1.5rem;">MyCloudConvert</div>
-        <div style="font-size: 1.5rem;">☁️</div>
+        <div style="font-weight: bold; font-size: 1.6rem;">MyCloudConvert</div>
+        <div style="font-size: 1.6rem;">☁️</div>
     </nav>
 
     <div class="container">
         <h1>File Converter</h1>
-        <p>Convert your files instantly. 100% Secure & Private.</p>
+        <p style="font-size: 1.1rem; color: #666;">Convert your files instantly. 100% Secure & Private.</p>
 
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
+            <p id="fileNameDisplay" style="font-size: 1.2rem; color: #444;">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .docx, .heic">
         </div>
 
         <div>
-            <span>Convert to </span>
+            <span style="font-weight: 500;">Convert to </span>
             <select id="toFormat" class="custom-select" onmousedown="if(this.options.length > 8){this.size=9;}" onchange="this.size=0;" onblur="this.size=0;">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
@@ -117,12 +141,7 @@
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const epsContent = [
-                        '%!PS-Adobe-3.0 EPSF-3.0',
-                        '%%BoundingBox: 0 0 800 600',
-                        '%%LanguageLevel: 2',
-                        '%%EOF'
-                    ].join('\n');
+                    const epsContent = ['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 800 600','%%LanguageLevel: 2','%%EOF'].join('\n');
                     const blob = new Blob([epsContent], { type: 'application/postscript' });
                     downloadBlob(blob, "converted.eps");
                     resolve();
@@ -131,7 +150,6 @@
             });
         }
 
-        // SVG logic remains the same as it was working for you
         function convertToSvg(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
