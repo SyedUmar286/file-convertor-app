@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Free Online File Converter | PNG, JPG, PDF, HEIC & More</title>
-    <meta name="description" content="Convert images to 14+ formats instantly. Secure, private, and 100% free browser-based tool. No server uploads.">
-    <meta name="keywords" content="image converter, PNG to JPG, HEIC to JPG, WebP converter, PDF creator, free online converter">
-
     <link rel="icon" type="image/png" href="./logo.png">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
 
@@ -24,7 +19,6 @@
         .btn-convert { padding: 12px 25px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-convert:hover { background: #b2322a; }
         #status { margin-top: 20px; color: #666; font-style: italic; }
-        .seo-hidden { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -33,11 +27,6 @@
         <div style="font-weight: bold; font-size: 1.5rem;">MyCloudConvert</div>
         <div style="font-size: 1.5rem;">☁️</div>
     </nav>
-
-    <div class="seo-hidden">
-        <h1>Free Online Image Converter</h1>
-        <p>Convert PNG to JPG, HEIC to JPEG, and images to PDF. Our tool supports WebP, SVG, ICO, GIF, BMP, TIFF, RAW, PSD, and EPS formats.</p>
-    </div>
 
     <div class="container">
         <h1>File Converter</h1>
@@ -50,23 +39,15 @@
 
         <div>
             <span>Convert to </span>
-            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length > 8){this.size=9;}" onchange="this.size=0;" onblur="this.size=0;">
+            <select id="toFormat" class="custom-select">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
                     <option value="png">PNG</option>
                     <option value="webp">WEBP</option>
                     <option value="pdf">PDF</option>
-                    <option value="ico">ICO</option>
-                    <option value="gif">GIF</option>
-                    <option value="bmp">BMP</option>
-                    <option value="tiff">TIFF</option>
                 </optgroup>
-                <optgroup label="Advanced Formats (NEW)">
-                    <option value="svg">SVG</option>
-                    <option value="heic">HEIC</option>
-                    <option value="raw">RAW</option>
-                    <option value="psd">PSD</option>
-                    <option value="eps">EPS</option>
+                <optgroup label="Advanced Formats">
+                    <option value="svg">SVG (Sharp Image)</option>
                 </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -77,67 +58,69 @@
 
     <script>
         function updateFileName(event) {
-            const input = event.target;
             const display = document.getElementById('fileNameDisplay');
-            if (input.files && input.files[0]) {
-                display.innerText = "Selected: " + input.files[0].name;
-            }
+            if (event.target.files[0]) { display.innerText = "Selected: " + event.target.files[0].name; }
         }
 
         async function processConversion() {
             const fileInput = document.getElementById('fileInput');
             const targetFormat = document.getElementById('toFormat').value;
             const status = document.getElementById('status');
-
-            if (!fileInput.files[0]) {
-                alert("Pehle file select karein!");
-                return;
-            }
-
             const file = fileInput.files[0];
-            status.innerText = "Processing... Please wait.";
+
+            if (!file) { alert("Pehle file select karein!"); return; }
+            status.innerText = "Processing...";
 
             try {
-                if (targetFormat === 'pdf') {
-                    await convertToPdf(file);
-                } else if (targetFormat === 'heic') {
-                    await convertHeic(file);
-                } else {
-                    await convertImage(file, targetFormat);
-                }
-                status.innerText = "Conversion Successful! Download started.";
+                if (targetFormat === 'pdf') { await convertToPdf(file); }
+                else if (targetFormat === 'heic') { await convertHeic(file); }
+                else if (targetFormat === 'svg') { await convertToSvg(file); }
+                else { await convertImage(file, targetFormat); }
+                status.innerText = "Success! Download started.";
             } catch (e) {
-                status.innerText = "Error: File support missing.";
-                console.error(e);
+                status.innerText = "Error during conversion.";
             }
         }
 
-        async function convertHeic(file) {
-            const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-            downloadBlob(blob, "converted.jpg");
+        // --- NEW SVG FIX ---
+        function convertToSvg(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imgData = e.target.result;
+                    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${imgData}" width="100%" height="100%"/></svg>`;
+                    const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+                    downloadBlob(blob, "converted.svg");
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         function convertImage(file, format) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        canvas.width = img.width; canvas.height = img.height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
-                        let mimeType = (format === 'jpg') ? 'image/jpeg' : `image/${format}`;
                         canvas.toBlob((blob) => {
                             downloadBlob(blob, `converted.${format}`);
                             resolve();
-                        }, mimeType);
+                        }, `image/${format === 'jpg' ? 'jpeg' : format}`);
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        async function convertHeic(file) {
+            const blob = await heic2any({ blob: file, toType: "image/jpeg" });
+            downloadBlob(blob, "converted.jpg");
         }
 
         async function convertToPdf(file) {
@@ -155,9 +138,7 @@
         function downloadBlob(blob, name) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = name;
-            a.click();
+            a.href = url; a.download = name; a.click();
             URL.revokeObjectURL(url);
         }
     </script>
