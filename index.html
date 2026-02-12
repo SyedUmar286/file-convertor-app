@@ -12,61 +12,62 @@
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
-        nav { background: var(--dark); padding: 1.2rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: var(--dark); padding: 1.2rem 2.5rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Box ko thora bara aur spacious kiya hai */
+        /* Box size fixed as per the image requirement */
         .container { 
-            max-width: 1000px; /* Increased width */
+            max-width: 1100px; /* Bara size jaisa image mein hai */
+            width: 90%; 
             margin: 60px auto 30px auto; 
             text-align: center; 
             background: white; 
-            padding: 50px; /* Increased padding */
+            padding: 70px 50px; /* Zyada padding for spacious look */
             border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.06); 
             position: relative; 
         }
 
         .upload-box { 
             border: 2px dashed #ccc; 
-            padding: 60px; /* Bigger upload area */
-            margin: 30px 0; 
+            padding: 80px 40px; /* Lamba aur bara upload area */
+            margin: 40px 0; 
             border-radius: 15px; 
             cursor: pointer; 
             transition: 0.3s; 
         }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        .custom-select { padding: 14px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 250px; vertical-align: middle; outline: none; cursor: pointer; }
-        .btn-convert { padding: 14px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .custom-select { padding: 15px; font-size: 1.1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 280px; vertical-align: middle; outline: none; cursor: pointer; }
+        .btn-convert { padding: 15px 45px; font-size: 1.1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-convert:hover { background: #b2322a; }
         
-        #status { margin-top: 25px; color: #666; font-style: italic; font-size: 1.1rem; }
+        #status { margin-top: 30px; color: #666; font-style: italic; font-size: 1.1rem; }
 
-        /* Information Section - Kept exactly as requested */
-        .info-section { max-width: 1000px; margin: 0 auto 60px auto; padding: 0 20px; text-align: left; }
-        .info-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
-        .info-card h3 { color: var(--dark); margin-top: 0; font-size: 1.3rem; }
-        .info-card p { color: #555; line-height: 1.6; margin: 10px 0; font-size: 0.95rem; }
+        /* Information Section (Keep untouched as requested) */
+        .info-section { max-width: 1100px; margin: 0 auto 70px auto; padding: 0 20px; text-align: left; }
+        .info-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-left: 6px solid var(--primary); }
+        .info-card h3 { color: var(--dark); margin-top: 0; font-size: 1.4rem; }
+        .info-card p { color: #555; line-height: 1.8; margin: 12px 0; font-size: 1rem; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="font-weight: bold; font-size: 1.6rem;">MyCloudConvert</div>
-        <div style="font-size: 1.6rem;">☁️</div>
+        <div style="font-weight: bold; font-size: 1.8rem;">MyCloudConvert</div>
+        <div style="font-size: 1.8rem;">☁️</div>
     </nav>
 
     <div class="container">
-        <h1>File Converter</h1>
-        <p style="font-size: 1.1rem; color: #666;">Convert your files instantly. 100% Secure & Private.</p>
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">File Converter</h1>
+        <p style="font-size: 1.2rem; color: #666;">Convert your files instantly. 100% Secure & Private.</p>
 
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            <p id="fileNameDisplay" style="font-size: 1.2rem; color: #444;">Click or Drag & Drop File Here</p>
+            <p id="fileNameDisplay" style="font-size: 1.3rem; color: #444;">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .docx, .heic">
         </div>
 
         <div>
-            <span style="font-weight: 500;">Convert to </span>
+            <span style="font-weight: 500; font-size: 1.1rem;">Convert to </span>
             <select id="toFormat" class="custom-select" onmousedown="if(this.options.length > 8){this.size=9;}" onchange="this.size=0;" onblur="this.size=0;">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
