@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>MyCloudConvert | Best Free Online File Converter (100% Private)</title>
-    <meta name="description" content="Convert any file instantly with MyCloudConvert. The fastest, most secure browser-based converter for PDF, PNG, JPG, HEIC, SVG, and EPS. No uploads, 100% private.">
-    <meta name="keywords" content="free file converter, online image converter, convert PNG to EPS, HEIC to JPG converter, SVG vector converter, secure file conversion, MyCloudConvert, best online converter 2026">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="MyCloudConvert">
+    <meta name="description" content="Convert files instantly with MyCloudConvert. Secure, browser-based converter for PDF, PNG, JPG, HEIC, SVG, and EPS. No uploads, 100% private.">
+    <meta name="keywords" content="free file converter, online image converter, PNG to EPS, HEIC to JPG, SVG converter, MyCloudConvert">
     
-    <meta property="og:title" content="MyCloudConvert - Instant & Secure File Converter">
-    <meta property="og:description" content="Convert images and documents locally in your browser. Fast, free, and private.">
-    <meta property="og:type" content="website">
-
     <link rel="icon" type="image/png" href="./logo.png">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <meta property="og:image" content="./logo.png">
+    <meta name="twitter:image" content="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
@@ -22,97 +19,104 @@
     <style>
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
-        nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Perfect Wide & Sleek Box */
+        /* Nav bar with clouds on BOTH sides */
+        nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .nav-left { display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 1.5rem; }
+        .cloud-icon { font-size: 1.5rem; }
+
         .container { 
-            max-width: 950px; 
-            width: 95%; 
-            margin: 40px auto 20px auto; 
-            text-align: center; 
-            background: white; 
-            padding: 30px 50px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-            position: relative; 
+            max-width: 950px; width: 95%; margin: 40px auto 20px auto; 
+            text-align: center; background: white; padding: 30px 50px; 
+            border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
         }
 
         .upload-box { 
-            border: 2px dashed #ccc; 
-            padding: 40px 20px; 
-            margin: 20px 0; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            transition: 0.3s; 
+            border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; 
+            border-radius: 10px; cursor: pointer; transition: 0.3s; 
         }
         .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
         
-        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 230px; vertical-align: middle; outline: none; cursor: pointer; }
-        .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-convert:hover { background: #b2322a; }
+        .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 230px; cursor: pointer; }
+        .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         
-        #status { margin-top: 15px; color: #666; font-style: italic; }
+        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 10px; cursor: pointer; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; }
 
-        /* Professional Info Section */
-        .info-section { max-width: 950px; margin: 0 auto 50px auto; padding: 0 20px; text-align: left; }
-        .info-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
-        .info-card h3 { color: var(--dark); margin-top: 0; font-size: 1.2rem; }
-        .info-card p { color: #555; line-height: 1.6; margin: 8px 0; font-size: 0.95rem; }
+        .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; text-align: left; }
+        .info-card { background: #fff; padding: 20px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="font-weight: bold; font-size: 1.5rem;">MyCloudConvert</div>
-        <div style="font-size: 1.5rem;">☁️</div>
-    </nav>
+        <div class="nav-left">
+            <span class="cloud-icon">☁️</span> MyCloudConvert
+        </div>
+        <div class="cloud-icon">☁️</div> </nav>
 
     <div class="container">
-        <h1 style="margin-bottom: 5px;">File Converter</h1>
-        <p style="color: #666; margin-bottom: 20px;">Convert your files instantly. 100% Secure & Private.</p>
-
+        <h1>File Converter</h1>
+        <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            <p id="fileNameDisplay" style="color: #444; font-weight: 500;">Click or Drag & Drop File Here</p>
-            <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .docx, .heic">
+            <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
+            <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)" accept="image/*, .pdf, .heic">
         </div>
-
         <div>
-            <span style="font-weight: 500;">Convert to </span>
-            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length > 8){this.size=9;}" onchange="this.size=0;" onblur="this.size=0;">
+            <span>Convert to </span>
+            <select id="toFormat" class="custom-select">
                 <optgroup label="Standard Formats">
-                    <option value="jpg">JPG / JPEG</option>
-                    <option value="png">PNG</option>
-                    <option value="webp">WEBP</option>
-                    <option value="pdf">PDF</option>
-                    <option value="ico">ICO</option>
-                    <option value="gif">GIF</option>
-                    <option value="bmp">BMP</option>
-                    <option value="tiff">TIFF</option>
+                    <option value="jpg">JPG</option><option value="png">PNG</option>
+                    <option value="webp">WEBP</option><option value="pdf">PDF</option>
                 </optgroup>
                 <optgroup label="Advanced Formats">
-                    <option value="svg">SVG</option>
-                    <option value="heic">HEIC</option>
-                    <option value="raw">RAW</option>
-                    <option value="psd">PSD</option>
+                    <option value="svg">SVG</option><option value="heic">HEIC</option>
                     <option value="eps">EPS</option>
                 </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
         </div>
-
         <div id="status"></div>
     </div>
 
     <div class="info-section">
         <div class="info-card">
             <h3>Quick Guide:</h3>
-            <p>• <b>EPS & SVG:</b> Professional vector formats. EPS files are best opened in Adobe Illustrator or CorelDraw.</p>
-            <p>• <b>HEIC:</b> Apple's high-efficiency image format. Converted directly without losing quality.</p>
-            <p>• <b>Privacy:</b> All processes run locally in your browser. Your data remains on your device.</p>
+            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
+            <p>• <b>Formats:</b> Convert easily to professional formats like EPS and SVG.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 MyCloudConvert | 
+        <a onclick="openModal('privacyModal')">Privacy Policy</a> | 
+        <a onclick="openModal('contactModal')">Contact Us</a>
+    </footer>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p>Your data stays on your device. We use local browser processing for 100% privacy.</p>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
+            <h2>Contact Us</h2>
+            <p>Email: <b>support@mycloudconvert.com</b></p>
         </div>
     </div>
 
     <script>
+        function openModal(id) { document.getElementById(id).style.display = "block"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        window.onclick = function(event) { if (event.target.className === 'modal') { event.target.style.display = "none"; } }
+
         function updateFileName(event) {
             const display = document.getElementById('fileNameDisplay');
             if (event.target.files[0]) { display.innerText = "Selected: " + event.target.files[0].name; }
@@ -123,38 +127,23 @@
             const targetFormat = document.getElementById('toFormat').value;
             const status = document.getElementById('status');
             const file = fileInput.files[0];
-
-            if (!file) { 
-                alert("Please select a file first!"); 
-                return; 
-            }
-            status.innerText = "Processing... Please wait.";
-
+            if (!file) { alert("Please select a file first!"); return; }
+            status.innerText = "Processing...";
             try {
                 if (targetFormat === 'pdf') { await convertToPdf(file); }
-                else if (targetFormat === 'heic') { await convertToHeic(file); }
                 else if (targetFormat === 'eps') { await convertToEps(file); }
                 else if (targetFormat === 'svg') { await convertToSvg(file); }
                 else { await convertImage(file, targetFormat); }
                 status.innerText = "Success! Download started.";
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Error: Conversion failed.";
-            }
+            } catch (e) { status.innerText = "Error: Conversion failed."; }
         }
 
-        async function convertToHeic(file) {
-            const blob = new Blob([file], { type: 'image/heic' });
-            downloadBlob(blob, "converted.heic");
-        }
-
-        async function convertToEps(file) {
+        function convertToEps(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const epsContent = ['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 800 600','%%LanguageLevel: 2','%%EOF'].join('\n');
-                    const blob = new Blob([epsContent], { type: 'application/postscript' });
-                    downloadBlob(blob, "converted.eps");
+                    const eps = ['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 800 600','%%EOF'].join('\n');
+                    downloadBlob(new Blob([eps], { type: 'application/postscript' }), "converted.eps");
                     resolve();
                 };
                 reader.readAsDataURL(file);
@@ -165,9 +154,8 @@
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
-                    const blob = new Blob([svgContent], {type: 'image/svg+xml'});
-                    downloadBlob(blob, "converted.svg");
+                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
+                    downloadBlob(new Blob([svg], {type: 'image/svg+xml'}), "converted.svg");
                     resolve();
                 };
                 reader.readAsDataURL(file);
@@ -182,12 +170,8 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         canvas.width = img.width; canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob((blob) => {
-                            downloadBlob(blob, `converted.${format}`);
-                            resolve();
-                        }, `image/${format === 'jpg' ? 'jpeg' : format}`);
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        canvas.toBlob((blob) => { downloadBlob(blob, `converted.${format}`); resolve(); }, `image/${format}`);
                     };
                     img.src = e.target.result;
                 };
@@ -198,20 +182,15 @@
         async function convertToPdf(file) {
             const pdfDoc = await PDFLib.PDFDocument.create();
             const page = pdfDoc.addPage();
-            const arrayBuffer = await file.arrayBuffer();
-            let image;
-            try { image = await pdfDoc.embedJpg(arrayBuffer); }
-            catch { image = await pdfDoc.embedPng(arrayBuffer); }
+            const image = await pdfDoc.embedJpg(await file.arrayBuffer());
             page.drawImage(image, { x: 50, y: 50, width: 500, height: 400 });
-            const pdfBytes = await pdfDoc.save();
-            downloadBlob(new Blob([pdfBytes]), "converted.pdf");
+            downloadBlob(new Blob([await pdfDoc.save()]), "converted.pdf");
         }
 
         function downloadBlob(blob, name) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; a.download = name; a.click();
-            URL.revokeObjectURL(url);
         }
     </script>
 </body>
