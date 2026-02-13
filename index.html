@@ -6,7 +6,8 @@
     <title>MyCloudConvert | 100% Private File Converter</title>
     
     <link rel="icon" type="image/png" href="./logo.png">
-    <link rel="shortcut icon" href="./logo.png">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <meta property="og:image" content="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
@@ -26,6 +27,7 @@
 
         .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; }
         
+        /* Dropdown Scroll Fix (exactly 7.5 items) */
         .custom-select { 
             padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; 
             margin: 10px; width: 260px; cursor: pointer; background: white;
@@ -53,10 +55,12 @@
     <div class="container">
         <h1>File Converter</h1>
         <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
+        
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
         </div>
+
         <div>
             <span>Convert to </span>
             <select id="toFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=8;}" onchange="this.size=0;" onblur="this.size=0;">
@@ -97,7 +101,7 @@
 
     <div id="contactModal" class="modal">
         <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
+            <span style="float:right; cursor:pointer; font-size:24px;" onclick="closeModal('contactModal')">&times;</span>
             <h2>Contact Us</h2>
             <p>Email: <b>usyed8361@gmail.com</b></p>
         </div>
@@ -105,16 +109,23 @@
 
     <div id="privacyModal" class="modal">
         <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
+            <span style="float:right; cursor:pointer; font-size:24px;" onclick="closeModal('privacyModal')">&times;</span>
             <h2>Privacy Policy</h2>
-            <p>Your files stay on your device. Local browser processing only.</p>
+            <p>100% local browser-based conversion. No data is ever stored or uploaded.</p>
         </div>
     </div>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        function updateFileName(event) { if (event.target.files[0]) { document.getElementById('fileNameDisplay').innerText = "Selected: " + event.target.files[0].name; } }
+        
+        function updateFileName(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('fileNameDisplay').innerText = "Selected: " + file.name;
+                document.getElementById('status').innerText = ""; // Clear old errors
+            }
+        }
 
         async function processConversion() {
             const fileInput = document.getElementById('fileInput');
@@ -122,6 +133,7 @@
             const status = document.getElementById('status');
             const file = fileInput.files[0];
 
+            // 1. Strict Validation: If no file, show error and STOP
             if (!file) {
                 status.style.color = "#cd3d33";
                 status.innerText = "Please select a file first!";
@@ -132,49 +144,42 @@
             status.innerText = "Processing...";
 
             try {
-                // 1. HEIC Conversion Fix
+                // HEIC Conversion Logic
                 if (targetFormat === 'heic' || file.name.toLowerCase().endsWith('.heic')) {
-                    const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-                    downloadBlob(blob, "converted.jpg");
+                    const resultBlob = await heic2any({ blob: file, toType: "image/jpeg" });
+                    downloadBlob(resultBlob, "converted.jpg");
                 } 
-                // 2. SVG Conversion Fix
-                else if (targetFormat === 'svg') {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
-                        const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-                        downloadBlob(svgBlob, "converted.svg");
-                    };
-                    reader.readAsDataURL(file);
-                }
-                // 3. PDF Conversion
+                // PDF Conversion Logic
                 else if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
                     const imageBytes = await file.arrayBuffer();
-                    let embeddedImage;
-                    if (file.type === "image/jpeg" || file.type === "image/jpg") {
-                        embeddedImage = await pdfDoc.embedJpg(imageBytes);
-                    } else {
-                        embeddedImage = await pdfDoc.embedPng(imageBytes);
-                    }
-                    const page = pdfDoc.addPage([embeddedImage.width, embeddedImage.height]);
-                    page.drawImage(embeddedImage, { x: 0, y: 0, width: embeddedImage.width, height: embeddedImage.height });
+                    let img;
+                    if (file.type === "image/png") img = await pdfDoc.embedPng(imageBytes);
+                    else img = await pdfDoc.embedJpg(imageBytes);
+                    const page = pdfDoc.addPage([img.width, img.height]);
+                    page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
                     const pdfBytes = await pdfDoc.save();
-                    downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), "converted.pdf");
-                } 
-                // 4. Standard Images (JPG, PNG, WEBP, etc.)
+                    downloadBlob(new Blob([pdfBytes]), "converted.pdf");
+                }
+                // SVG & Advanced Formats (using Canvas/DataURL)
                 else {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const img = new Image();
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
-                            canvas.width = img.width; canvas.height = img.height;
+                            canvas.width = img.width;
+                            canvas.height = img.height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0);
+                            
+                            let mimeType = `image/${targetFormat}`;
+                            if(targetFormat === 'jpg') mimeType = 'image/jpeg';
+                            if(targetFormat === 'svg') mimeType = 'image/svg+xml';
+
                             canvas.toBlob((blob) => {
                                 downloadBlob(blob, `converted.${targetFormat}`);
-                            }, `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
+                            }, mimeType);
                         };
                         img.src = e.target.result;
                     };
@@ -183,7 +188,7 @@
                 status.innerText = "Success! Download started.";
             } catch (err) {
                 status.style.color = "red";
-                status.innerText = "Conversion failed. Please check the file format.";
+                status.innerText = "Error: File format not supported for conversion.";
                 console.error(err);
             }
         }
@@ -191,8 +196,10 @@
         function downloadBlob(blob, name) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = name; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 200);
+            a.href = url;
+            a.download = name;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body>
