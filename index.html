@@ -7,6 +7,7 @@
     
     <link rel="icon" type="image/png" href="./logo.png">
     <link rel="shortcut icon" href="./logo.png">
+    <meta property="og:image" content="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
@@ -15,7 +16,6 @@
         :root { --primary: #cd3d33; --dark: #222; --light: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* Nav with Double Clouds */
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         .nav-left { display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 1.5rem; }
 
@@ -27,19 +27,13 @@
 
         .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; }
         
-        /* DROPDOWN SCROLL FIX: Force exactly 7.5 items view and downward open */
-        .select-container { position: relative; display: inline-block; }
         .custom-select { 
             padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; 
             margin: 10px; width: 260px; cursor: pointer; background: white;
-            display: inline-block;
         }
-        /* Isse dropdown hamesha niche khulega jab size trigger hoga */
-        .custom-select:focus { outline: none; border-color: var(--primary); }
 
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         
-        /* Quick Guide (3rd Recording Style) */
         .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
         .info-card { background: #fff; padding: 25px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: left; }
 
@@ -66,10 +60,7 @@
         </div>
         <div>
             <span>Convert to </span>
-            <select id="toFormat" class="custom-select" 
-                    onmousedown="if(this.options.length>7){this.size=8;}" 
-                    onchange="this.size=0;" 
-                    onblur="this.size=0;">
+            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=8;}" onchange="this.size=0;" onblur="this.size=0;">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
                     <option value="png">PNG</option>
@@ -90,7 +81,7 @@
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
         </div>
-        <div id="status" style="margin-top:10px;"></div>
+        <div id="status" style="margin-top:15px; font-weight: bold;"></div>
     </div>
 
     <div class="info-section">
@@ -102,9 +93,7 @@
     </div>
 
     <footer>
-        &copy; 2026 MyCloudConvert | 
-        <a onclick="openModal('privacyModal')">Privacy Policy</a> | 
-        <a onclick="openModal('contactModal')">Contact Us</a>
+        &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
     </footer>
 
     <div id="contactModal" class="modal">
@@ -119,7 +108,7 @@
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
             <h2>Privacy Policy</h2>
-            <p>100% local browser-based conversion.</p>
+            <p>Your privacy is protected. Files are processed entirely in your browser.</p>
         </div>
     </div>
 
@@ -127,10 +116,72 @@
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         function updateFileName(event) { if (event.target.files[0]) { document.getElementById('fileNameDisplay').innerText = "Selected: " + event.target.files[0].name; } }
+
         async function processConversion() {
+            const fileInput = document.getElementById('fileInput');
+            const targetFormat = document.getElementById('toFormat').value;
             const status = document.getElementById('status');
+            const file = fileInput.files[0];
+
+            // Correct Validation: If no file, show error and STOP
+            if (!file) {
+                status.style.color = "#cd3d33";
+                status.innerText = "Please select a file first!";
+                return; 
+            }
+
+            status.style.color = "black";
             status.innerText = "Processing...";
-            setTimeout(() => { status.innerText = "Success! Download started."; }, 1000);
+
+            try {
+                if (targetFormat === 'pdf') {
+                    const pdfDoc = await PDFLib.PDFDocument.create();
+                    const imageBytes = await file.arrayBuffer();
+                    let embeddedImage;
+                    if (file.type === "image/jpeg" || file.type === "image/jpg") {
+                        embeddedImage = await pdfDoc.embedJpg(imageBytes);
+                    } else {
+                        embeddedImage = await pdfDoc.embedPng(imageBytes);
+                    }
+                    const page = pdfDoc.addPage([embeddedImage.width, embeddedImage.height]);
+                    page.drawImage(embeddedImage, { x: 0, y: 0, width: embeddedImage.width, height: embeddedImage.height });
+                    const pdfBytes = await pdfDoc.save();
+                    downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), "converted.pdf");
+                } 
+                else if (targetFormat === 'heic') {
+                    const blob = await heic2any({ blob: file, toType: "image/jpeg" });
+                    downloadBlob(blob, "converted.jpg");
+                }
+                else {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width; canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            canvas.toBlob((blob) => {
+                                downloadBlob(blob, `converted.${targetFormat}`);
+                            }, `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+                status.innerText = "Success! Download started.";
+            } catch (err) {
+                status.style.color = "red";
+                status.innerText = "Conversion failed. Please try a different file.";
+                console.error(err);
+            }
+        }
+
+        function downloadBlob(blob, name) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = name; a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body>
