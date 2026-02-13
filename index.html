@@ -7,6 +7,7 @@
     
     <link rel="icon" type="image/png" href="./logo.png">
     <link rel="shortcut icon" href="./logo.png">
+    <meta property="og:image" content="./logo.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
@@ -107,7 +108,7 @@
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
             <h2>Privacy Policy</h2>
-            <p>Your files stay on your device. Local browser processing only.</p>
+            <p>Your privacy is protected. Files are processed entirely in your browser.</p>
         </div>
     </div>
 
@@ -122,6 +123,7 @@
             const status = document.getElementById('status');
             const file = fileInput.files[0];
 
+            // Correct Validation: If no file, show error and STOP
             if (!file) {
                 status.style.color = "#cd3d33";
                 status.innerText = "Please select a file first!";
@@ -132,23 +134,7 @@
             status.innerText = "Processing...";
 
             try {
-                // 1. HEIC Conversion Fix
-                if (targetFormat === 'heic' || file.name.toLowerCase().endsWith('.heic')) {
-                    const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-                    downloadBlob(blob, "converted.jpg");
-                } 
-                // 2. SVG Conversion Fix
-                else if (targetFormat === 'svg') {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
-                        const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-                        downloadBlob(svgBlob, "converted.svg");
-                    };
-                    reader.readAsDataURL(file);
-                }
-                // 3. PDF Conversion
-                else if (targetFormat === 'pdf') {
+                if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
                     const imageBytes = await file.arrayBuffer();
                     let embeddedImage;
@@ -162,7 +148,10 @@
                     const pdfBytes = await pdfDoc.save();
                     downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), "converted.pdf");
                 } 
-                // 4. Standard Images (JPG, PNG, WEBP, etc.)
+                else if (targetFormat === 'heic') {
+                    const blob = await heic2any({ blob: file, toType: "image/jpeg" });
+                    downloadBlob(blob, "converted.jpg");
+                }
                 else {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -183,7 +172,7 @@
                 status.innerText = "Success! Download started.";
             } catch (err) {
                 status.style.color = "red";
-                status.innerText = "Conversion failed. Please check the file format.";
+                status.innerText = "Conversion failed. Please try a different file.";
                 console.error(err);
             }
         }
@@ -192,7 +181,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; a.download = name; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 200);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body>
