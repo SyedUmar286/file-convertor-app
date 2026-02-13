@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>MyCloudConvert | 100% Private File Converter</title>
-    <meta name="description" content="Convert files locally: PDF, PNG, JPG, HEIC, SVG, EPS, RAW, PSD.">
     
     <link rel="icon" type="image/png" href="./logo.png">
-    <link rel="apple-touch-icon" href="./logo.png">
     <link rel="shortcut icon" href="./logo.png">
     <meta property="og:image" content="./logo.png">
 
@@ -32,16 +29,18 @@
 
         .upload-box { 
             border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; 
-            border-radius: 10px; cursor: pointer; transition: 0.3s; 
+            border-radius: 10px; cursor: pointer; 
         }
-        .upload-box:hover { border-color: var(--primary); background: #fff5f4; }
-        
-        /* Scroll Fix: Removed forced heights to allow native browser scroll */
+
+        /* SCROLL FIX: Native scroll logic */
+        .select-wrapper { position: relative; display: inline-block; }
         .custom-select { 
             padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; 
-            margin: 10px; width: 260px; cursor: pointer; 
+            margin: 10px; width: 260px; cursor: pointer; background: white;
         }
-        
+        /* Isse dropdown niche ki taraf browser scroll ke sath khulega */
+        .custom-select:focus { outline: none; border-color: var(--primary); }
+
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         
         footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
@@ -49,9 +48,6 @@
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; text-align: left; }
-
-        .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
-        .info-card { background: #fff; padding: 20px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -65,10 +61,12 @@
     <div class="container">
         <h1>File Converter</h1>
         <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
+        
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
         </div>
+
         <div>
             <span>Convert to </span>
             <select id="toFormat" class="custom-select">
@@ -95,33 +93,25 @@
         <div id="status"></div>
     </div>
 
-    <div class="info-section">
-        <div class="info-card">
-            <h3>Quick Guide:</h3>
-            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
-            <p>• <b>Formats:</b> Convert to JPG, PNG, PDF, and Advanced Vector formats.</p>
-        </div>
-    </div>
-
     <footer>
         &copy; 2026 MyCloudConvert | 
         <a onclick="openModal('privacyModal')">Privacy Policy</a> | 
         <a onclick="openModal('contactModal')">Contact Us</a>
     </footer>
 
-    <div id="privacyModal" class="modal">
-        <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>Your data is processed locally in your browser and never sent to any server.</p>
-        </div>
-    </div>
-
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
             <h2>Contact Us</h2>
             <p>Email: <b>usyed8361@gmail.com</b></p> </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p>All conversions happen locally. Your files are never uploaded.</p>
+        </div>
     </div>
 
     <script>
@@ -147,34 +137,7 @@
                 else if (targetFormat === 'svg') { await convertToSvg(file); }
                 else { await convertImage(file, targetFormat); }
                 status.innerText = "Success! Download started.";
-            } catch (e) { 
-                console.error(e);
-                status.innerText = "Error: Conversion failed."; 
-            }
-        }
-
-        function convertToEps(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const eps = ['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 800 600','%%EOF'].join('\n');
-                    downloadBlob(new Blob([eps], { type: 'application/postscript' }), "converted.eps");
-                    resolve();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function convertToSvg(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
-                    downloadBlob(new Blob([svg], {type: 'image/svg+xml'}), "converted.svg");
-                    resolve();
-                };
-                reader.readAsDataURL(file);
-            });
+            } catch (e) { status.innerText = "Error: Conversion failed."; }
         }
 
         function convertImage(file, format) {
@@ -192,17 +155,6 @@
                 };
                 reader.readAsDataURL(file);
             });
-        }
-
-        async function convertToPdf(file) {
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            const page = pdfDoc.addPage();
-            const imageBytes = await file.arrayBuffer();
-            let image;
-            if (file.type === "image/jpeg" || file.type === "image/jpg") { image = await pdfDoc.embedJpg(imageBytes); }
-            else { image = await pdfDoc.embedPng(imageBytes); }
-            page.drawImage(image, { x: 50, y: 400, width: 500, height: 400 });
-            downloadBlob(new Blob([await pdfDoc.save()]), "converted.pdf");
         }
 
         function downloadBlob(blob, name) {
