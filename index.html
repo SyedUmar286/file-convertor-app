@@ -4,8 +4,6 @@
     <title>MyCloudConvert | 100% Private File Converter</title>
     
     <link rel="icon" type="image/png" href="./logo.png">
-    <link rel="shortcut icon" href="./logo.png">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
 
@@ -42,23 +40,17 @@
         </div>
         <div>
             <span>Convert to </span>
-            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=8;}" onchange="this.size=0;" onblur="this.size=0;">
+            <select id="toFormat" class="custom-select">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
                     <option value="png">PNG</option>
                     <option value="webp">WEBP</option>
                     <option value="pdf">PDF</option>
                     <option value="ico">ICO</option>
-                    <option value="gif">GIF</option>
-                    <option value="bmp">BMP</option>
-                    <option value="tiff">TIFF</option>
                 </optgroup>
-                <optgroup label="Advanced Formats (NEW)">
+                <optgroup label="Advanced Formats">
                     <option value="svg">SVG</option>
-                    <option value="heic">HEIC</option>
-                    <option value="raw">RAW</option>
-                    <option value="psd">PSD</option>
-                    <option value="eps">EPS</option>
+                    <option value="heic">HEIC to JPG</option>
                 </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -68,31 +60,13 @@
 
     <div class="info-section">
         <div class="info-card">
-            <h3 style="margin-top:0;">Quick Guide:</h3>
-            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
-            <p>• <b>Formats:</b> Convert to JPG, PNG, PDF, and Advanced Vector formats.</p>
+            <h3>Quick Guide:</h3>
+            <p>• <b>Privacy:</b> Conversions happen locally on your device.</p>
+            <p>• <b>Note:</b> HEIC option is for converting Apple HEIC files to JPG.</p>
         </div>
     </div>
 
-    <footer>
-        &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
-    </footer>
-
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
-            <h2>Contact Us</h2>
-            <p>Email: <b>usyed8361@gmail.com</b></p>
-        </div>
-    </div>
-
-    <div id="privacyModal" class="modal">
-        <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>100% local browser-based conversion.</p>
-        </div>
-    </div>
+    <footer>&copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a></footer>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
@@ -105,41 +79,28 @@
             const status = document.getElementById('status');
             const file = fileInput.files[0];
 
-            if (!file) {
-                status.style.color = "#cd3d33";
-                status.innerText = "Please select a file first!";
-                return; 
-            }
-
-            status.style.color = "black";
-            status.innerText = "Processing...";
+            if (!file) { status.innerText = "Please select a file first!"; return; }
+            status.style.color = "black"; status.innerText = "Processing...";
 
             try {
-                // 1. HEIC Conversion (Improved Logic)
+                // 1. HEIC LOGIC
                 if (targetFormat === 'heic' || file.name.toLowerCase().endsWith('.heic')) {
-                    if (typeof heic2any === 'undefined') {
-                        throw new Error("HEIC Library not loaded yet.");
+                    if (file.type === "image/jpeg" || file.type === "image/png") {
+                        throw new Error("Cannot convert JPG to HEIC. Use HEIC files as input.");
                     }
-                    
-                    const blobData = await heic2any({ 
-                        blob: file, 
-                        toType: "image/jpeg",
-                        quality: 0.6 // Lower quality for better browser stability
-                    });
-                    
-                    const finalBlob = Array.isArray(blobData) ? blobData[0] : blobData;
-                    downloadBlob(finalBlob, "converted_from_heic.jpg");
+                    const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.7 });
+                    downloadBlob(Array.isArray(blob) ? blob[0] : blob, "converted.jpg");
                 } 
-                // 2. SVG (Working Version Kept)
+                // 2. SVG LOGIC
                 else if (targetFormat === 'svg') {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = (e) => {
                         const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
                         downloadBlob(new Blob([svgData], {type: 'image/svg+xml'}), "converted.svg");
                     };
                     reader.readAsDataURL(file);
                 }
-                // 3. PDF Logic
+                // 3. PDF LOGIC
                 else if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
                     const bytes = await file.arrayBuffer();
@@ -148,7 +109,7 @@
                     page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
                     downloadBlob(new Blob([await pdfDoc.save()]), "converted.pdf");
                 }
-                // 4. All Other Formats
+                // 4. STANDARD
                 else {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -157,30 +118,20 @@
                             const canvas = document.createElement('canvas');
                             canvas.width = img.width; canvas.height = img.height;
                             canvas.getContext('2d').drawImage(img, 0, 0);
-                            canvas.toBlob((blob) => {
-                                downloadBlob(blob, `converted.${targetFormat}`);
-                            }, `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
+                            canvas.toBlob((blob) => downloadBlob(blob, `converted.${targetFormat}`), `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
                         };
                         img.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
-                status.style.color = "green";
-                status.innerText = "Success! Download started.";
+                status.style.color = "green"; status.innerText = "Success! Download started.";
             } catch (err) {
-                status.style.color = "red";
-                status.innerText = "Conversion failed. Error: " + err.message;
-                console.error("Conversion Error:", err);
+                status.style.color = "red"; status.innerText = err.message;
             }
         }
 
         function downloadBlob(blob, name) {
-            const a = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            a.href = url;
-            a.download = name;
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
         }
     </script>
 </body></html>
