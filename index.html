@@ -132,12 +132,19 @@
             status.innerText = "Processing...";
 
             try {
-                // 1. HEIC Conversion Fix
+                // HEIC Conversion Logic
                 if (targetFormat === 'heic' || file.name.toLowerCase().endsWith('.heic')) {
-                    const blob = await heic2any({ blob: file, toType: "image/jpeg" });
-                    downloadBlob(blob, "converted.jpg");
+                    // heic2any returns a single blob or an array. We handle both.
+                    const convertedBlob = await heic2any({ 
+                        blob: file, 
+                        toType: "image/jpeg",
+                        quality: 0.8 
+                    });
+                    
+                    const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                    downloadBlob(finalBlob, file.name.split('.')[0] + ".jpg");
                 } 
-                // 2. SVG Conversion Fix
+                // SVG Conversion Logic
                 else if (targetFormat === 'svg') {
                     const reader = new FileReader();
                     reader.onload = function(e) {
@@ -147,7 +154,7 @@
                     };
                     reader.readAsDataURL(file);
                 }
-                // 3. PDF Conversion
+                // PDF Conversion Logic
                 else if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
                     const imageBytes = await file.arrayBuffer();
@@ -162,7 +169,7 @@
                     const pdfBytes = await pdfDoc.save();
                     downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), "converted.pdf");
                 } 
-                // 4. Standard Images (JPG, PNG, WEBP, etc.)
+                // Standard Images Logic
                 else {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -192,7 +199,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; a.download = name; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 200);
+            setTimeout(() => URL.revokeObjectURL(url), 500);
         }
     </script>
 </body>
