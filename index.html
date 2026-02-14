@@ -74,7 +74,6 @@
                 </optgroup>
                 <optgroup label="Advanced Formats (NEW)">
                     <option value="svg">SVG</option>
-                    <option value="heic">HEIC (iPhone)</option>
                     <option value="eps">EPS</option>
                 </optgroup>
             </select>
@@ -148,7 +147,7 @@
             try {
                 let finalBlob;
 
-                if (file.name.toLowerCase().endsWith('.heic') || targetFormat === 'heic') {
+                if (file.name.toLowerCase().endsWith('.heic')) {
                     let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
                     const blob = await heic2any({ blob: file, toType: outputMime, quality: 0.7 });
                     finalBlob = Array.isArray(blob) ? blob[0] : blob;
