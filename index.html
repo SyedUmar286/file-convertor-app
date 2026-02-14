@@ -130,7 +130,34 @@
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        function updateFileName(event) { if (event.target.files[0]) { document.getElementById('fileNameDisplay').innerText = "Selected: " + event.target.files[0].name; } }
+        
+        function updateFileName(event) { 
+            const file = event.target.files[0];
+            if (file) { 
+                document.getElementById('fileNameDisplay').innerText = "Selected: " + file.name; 
+                
+                // --- Auto Detect Logic Starts ---
+                const extension = file.name.split('.').pop().toLowerCase();
+                const fromSelect = document.getElementById('fromFormat');
+                
+                // Map complex extensions
+                let targetValue = extension;
+                if (extension === 'jpeg') targetValue = 'jpg';
+                
+                // Check if the extension exists in the dropdown
+                let exists = false;
+                for (let i = 0; i < fromSelect.options.length; i++) {
+                    if (fromSelect.options[i].value === targetValue) {
+                        fromSelect.value = targetValue;
+                        exists = true;
+                        break;
+                    }
+                }
+                
+                if (!exists) fromSelect.value = "auto";
+                // --- Auto Detect Logic Ends ---
+            } 
+        }
 
         async function processConversion() {
             const fileInput = document.getElementById('fileInput');
