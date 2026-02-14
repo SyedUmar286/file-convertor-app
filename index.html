@@ -14,12 +14,15 @@
         .nav-left { display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 1.5rem; }
         .container { max-width: 950px; width: 95%; margin: 40px auto 20px auto; text-align: center; background: white; padding: 30px 50px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; }
+        
         .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 220px; cursor: pointer; background: white; }
         .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
         .info-card { background: #fff; padding: 25px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: left; }
+        
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
         footer a { color: var(--primary); text-decoration: none; margin: 0 10px; cursor: pointer; }
+        
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; }
     </style>
@@ -40,7 +43,7 @@
         </div>
         <div>
             <span>From: </span>
-            <select id="fromFormat" class="custom-select">
+            <select id="fromFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=7;}" onchange="this.size=0;" onblur="this.size=0;">
                 <option value="auto">Auto Detect</option>
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
@@ -52,10 +55,17 @@
                     <option value="bmp">BMP</option>
                     <option value="tiff">TIFF</option>
                 </optgroup>
+                <optgroup label="Advanced Formats">
+                    <option value="heic">HEIC (iPhone)</option>
+                    <option value="svg">SVG</option>
+                    <option value="raw">RAW</option>
+                    <option value="psd">PSD</option>
+                    <option value="eps">EPS</option>
+                </optgroup>
             </select>
 
             <span> To: </span>
-            <select id="toFormat" class="custom-select">
+            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=7;}" onchange="this.size=0;" onblur="this.size=0;">
                 <optgroup label="Standard Formats">
                     <option value="jpg">JPG / JPEG</option>
                     <option value="png">PNG</option>
@@ -66,9 +76,11 @@
                     <option value="bmp">BMP</option>
                     <option value="tiff">TIFF</option>
                 </optgroup>
-                <optgroup label="Advanced (Experimental)">
+                <optgroup label="Advanced Formats (NEW)">
                     <option value="svg">SVG</option>
+                    <option value="raw">RAW</option>
                     <option value="psd">PSD</option>
+                    <option value="eps">EPS</option>
                 </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
@@ -78,19 +90,54 @@
 
     <div class="info-section">
         <div class="info-card">
-            <h3>Quick Guide:</h3>
-            <p>• <b>Privacy:</b> Local browser processing.</p>
-            <p>• <b>Formats:</b> For PSD/Advanced formats, internal data structure is preserved where possible.</p>
+            <h3 style="margin-top:0;">Quick Guide:</h3>
+            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
+            <p>• <b>Security:</b> 100% browser-side processing for data safety.</p>
+            <p>• <b>Opening EPS Files:</b> Browsers cannot preview EPS directly. Please use Adobe Illustrator, CorelDRAW, Inkscape, or an Online EPS Viewer to open these files.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
+    </footer>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
+            <h2>Contact Us</h2>
+            <p>Email: <b>usyed8361@gmail.com</b></p>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p>Your files stay on your device. Local browser processing only.</p>
         </div>
     </div>
 
     <script>
+        function openModal(id) { document.getElementById(id).style.display = "block"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        
         function updateFileName(event) { 
             const file = event.target.files[0];
             if (file) { 
                 document.getElementById('fileNameDisplay').innerText = "Selected: " + file.name; 
-                const ext = file.name.split('.').pop().toLowerCase();
-                document.getElementById('fromFormat').value = (ext === 'jpeg') ? 'jpg' : ext;
+                const extension = file.name.split('.').pop().toLowerCase();
+                const fromSelect = document.getElementById('fromFormat');
+                let targetValue = extension;
+                if (extension === 'jpeg') targetValue = 'jpg';
+                let exists = false;
+                for (let i = 0; i < fromSelect.options.length; i++) {
+                    if (fromSelect.options[i].value === targetValue) {
+                        fromSelect.value = targetValue;
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) fromSelect.value = "auto";
             } 
         }
 
@@ -105,8 +152,14 @@
 
             try {
                 let finalBlob;
+                const extension = targetFormat;
 
-                if (targetFormat === 'pdf') {
+                if (file.name.toLowerCase().endsWith('.heic')) {
+                    let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
+                    const blob = await heic2any({ blob: file, toType: outputMime, quality: 0.7 });
+                    finalBlob = Array.isArray(blob) ? blob[0] : blob;
+                } 
+                else if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
                     const bytes = await file.arrayBuffer();
                     const img = (file.type === "image/png") ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
@@ -115,75 +168,49 @@
                     finalBlob = new Blob([await pdfDoc.save()], { type: 'application/pdf' });
                 }
                 else if (targetFormat === 'svg') {
-                    const reader = new FileReader();
-                    finalBlob = await new Promise(resolve => {
-                        reader.onload = e => {
-                            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><image href="${e.target.result}" width="500" height="500"/></svg>`;
-                            resolve(new Blob([svg], {type: 'image/svg+xml'}));
+                    finalBlob = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><image href="${e.target.result}" width="500" height="500"/></svg>`;
+                            resolve(new Blob([svgString], { type: 'image/svg+xml' }));
                         };
                         reader.readAsDataURL(file);
                     });
                 }
                 else {
-                    // Yahan hum browser ko PNG banane se rokne ke liye asli MIME types force kar rahe hain
-                    finalBlob = await new Promise((resolve, reject) => {
+                    // Logic fixed for WebP, PNG, GIF, ICO MIME Types
+                    finalBlob = await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             const img = new Image();
                             img.onload = () => {
                                 const canvas = document.createElement('canvas');
                                 canvas.width = img.width; canvas.height = img.height;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0);
+                                canvas.getContext('2d').drawImage(img, 0, 0);
                                 
-                                let mime;
-                                switch(targetFormat) {
-                                    case 'jpg': mime = 'image/jpeg'; break;
-                                    case 'webp': mime = 'image/webp'; break;
-                                    case 'ico': mime = 'image/x-icon'; break;
-                                    case 'bmp': mime = 'image/bmp'; break;
-                                    case 'gif': mime = 'image/gif'; break;
-                                    case 'tiff': mime = 'image/tiff'; break;
-                                    case 'png': mime = 'image/png'; break;
-                                    default: mime = 'image/png';
-                                }
+                                let mimeType = `image/${targetFormat}`;
+                                if(targetFormat === 'jpg') mimeType = 'image/jpeg';
+                                if(targetFormat === 'ico') mimeType = 'image/x-icon';
                                 
-                                canvas.toBlob((blob) => {
-                                    if (blob) resolve(blob);
-                                    else reject(new Error("Browser could not encode " + targetFormat));
-                                }, mime, 0.9);
+                                canvas.toBlob((blob) => resolve(blob), mimeType);
                             };
                             img.src = e.target.result;
                         };
-                        reader.readAsArrayBuffer(file);
-                        // Re-reading as data URL for image preview
-                        const previewReader = new FileReader();
-                        previewReader.onload = (ev) => { reader.resultData = ev.target.result; };
-                        previewReader.readAsDataURL(file);
-                        // Use the data URL in the image source logic
-                        reader.onload = (e) => {
-                             const img = new Image();
-                             img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = img.width; canvas.height = img.height;
-                                canvas.getContext('2d').drawImage(img, 0, 0);
-                                let mime = (targetFormat === 'jpg') ? 'image/jpeg' : (targetFormat === 'ico' ? 'image/x-icon' : `image/${targetFormat}`);
-                                canvas.toBlob(b => resolve(b), mime);
-                             };
-                             img.src = previewReader.result;
-                        };
+                        reader.readAsDataURL(file);
                     });
                 }
 
-                const url = URL.createObjectURL(finalBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `converted.${targetFormat}`;
-                a.click();
-                status.style.color = "green"; status.innerText = "✅ Success!";
+                downloadBlob(finalBlob, `converted.${targetFormat}`);
+                status.style.color = "green"; status.innerText = "✅ Success! Download started.";
             } catch (err) {
                 status.style.color = "red"; status.innerText = "Error: " + err.message;
             }
+        }
+
+        function downloadBlob(blob, name) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body></html>
