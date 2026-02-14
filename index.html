@@ -71,15 +71,9 @@
                     <option value="png">PNG</option>
                     <option value="webp">WEBP</option>
                     <option value="pdf">PDF</option>
-                    <option value="ico">ICO</option>
-                    <option value="gif">GIF</option>
-                    <option value="bmp">BMP</option>
-                    <option value="tiff">TIFF</option>
                 </optgroup>
                 <optgroup label="Advanced Formats (NEW)">
                     <option value="svg">SVG</option>
-                    <option value="raw">RAW</option>
-                    <option value="psd">PSD</option>
                     <option value="eps">EPS</option>
                 </optgroup>
             </select>
@@ -100,22 +94,6 @@
     <footer>
         &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
     </footer>
-
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
-            <h2>Contact Us</h2>
-            <p>Email: <b>usyed8361@gmail.com</b></p>
-        </div>
-    </div>
-
-    <div id="privacyModal" class="modal">
-        <div class="modal-content">
-            <span style="float:right; cursor:pointer;" onclick="closeModal('privacyModal')">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>Your files stay on your device. Local browser processing only.</p>
-        </div>
-    </div>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
@@ -152,7 +130,6 @@
 
             try {
                 let finalBlob;
-                const extension = targetFormat;
 
                 if (file.name.toLowerCase().endsWith('.heic')) {
                     let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
@@ -178,7 +155,6 @@
                     });
                 }
                 else {
-                    // Logic fixed for WebP, PNG, GIF, ICO MIME Types
                     finalBlob = await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
@@ -187,11 +163,7 @@
                                 const canvas = document.createElement('canvas');
                                 canvas.width = img.width; canvas.height = img.height;
                                 canvas.getContext('2d').drawImage(img, 0, 0);
-                                
-                                let mimeType = `image/${targetFormat}`;
-                                if(targetFormat === 'jpg') mimeType = 'image/jpeg';
-                                if(targetFormat === 'ico') mimeType = 'image/x-icon';
-                                
+                                let mimeType = (targetFormat === 'jpg') ? 'image/jpeg' : `image/${targetFormat}`;
                                 canvas.toBlob((blob) => resolve(blob), mimeType);
                             };
                             img.src = e.target.result;
