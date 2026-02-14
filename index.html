@@ -13,25 +13,31 @@
         nav { background: var(--dark); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
         .nav-left { display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 1.5rem; }
         .container { max-width: 950px; width: 95%; margin: 40px auto 20px auto; text-align: center; background: white; padding: 30px 50px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; }
+        .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .upload-box:hover { border-color: var(--primary); background: #fffcfc; }
         
         .custom-select { padding: 12px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; margin: 10px; width: 220px; cursor: pointer; background: white; }
-        .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
-        .info-card { background: #fff; padding: 25px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: left; }
+        .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-convert:hover { background: #b0322a; transform: translateY(-2px); }
         
-        .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
-        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: #666; }
-        footer a { color: var(--primary); text-decoration: none; margin: 0 10px; cursor: pointer; }
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 500px; border-radius: 12px; position: relative; text-align: left; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #666; }
+        .modal h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 600px; border-radius: 10px; position: relative; }
+        footer { margin-top: auto; padding: 25px; text-align: center; font-size: 0.95rem; color: #444; background: #eee; }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        footer a:hover { text-decoration: underline; color: var(--dark); }
+        
+        #status { margin-top:15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="nav-left"><span>☁️</span> MyCloudConvert</div>
-        <div style="font-size: 1.2rem;">☁️</div>
+        <div style="font-size: 1.2rem;">⚡ Local & Fast</div>
     </nav>
 
     <div class="container">
@@ -43,79 +49,79 @@
         </div>
         <div>
             <span>From: </span>
-            <select id="fromFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=7;}" onchange="this.size=0;" onblur="this.size=0;">
+            <select id="fromFormat" class="custom-select">
                 <option value="auto">Auto Detect</option>
-                <optgroup label="Standard Formats">
-                    <option value="jpg">JPG / JPEG</option>
-                    <option value="png">PNG</option>
-                    <option value="webp">WEBP</option>
-                    <option value="pdf">PDF</option>
-                    <option value="ico">ICO</option>
-                    <option value="gif">GIF</option>
-                    <option value="bmp">BMP</option>
-                    <option value="tiff">TIFF</option>
-                </optgroup>
-                <optgroup label="Advanced Formats">
-                    <option value="heic">HEIC (iPhone)</option>
-                    <option value="svg">SVG</option>
-                    <option value="raw">RAW</option>
-                    <option value="psd">PSD</option>
-                    <option value="eps">EPS</option>
-                </optgroup>
+                <option value="jpg">JPG / JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WEBP</option>
+                <option value="pdf">PDF</option>
+                <option value="heic">HEIC</option>
+                <option value="svg">SVG</option>
             </select>
 
             <span> To: </span>
-            <select id="toFormat" class="custom-select" onmousedown="if(this.options.length>7){this.size=7;}" onchange="this.size=0;" onblur="this.size=0;">
-                <optgroup label="Standard Formats">
-                    <option value="jpg">JPG / JPEG</option>
-                    <option value="png">PNG</option>
-                    <option value="webp">WEBP</option>
-                    <option value="pdf">PDF</option>
-                </optgroup>
-                <optgroup label="Advanced Formats (NEW)">
-                    <option value="svg">SVG</option>
-                    <option value="eps">EPS</option>
-                </optgroup>
+            <select id="toFormat" class="custom-select">
+                <option value="jpg">JPG / JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WEBP</option>
+                <option value="pdf">PDF</option>
+                <option value="svg">SVG</option>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
         </div>
-        <div id="status" style="margin-top:15px; font-weight: bold;"></div>
+        <div id="status"></div>
     </div>
 
-    <div class="info-section">
-        <div class="info-card">
-            <h3 style="margin-top:0;">Quick Guide:</h3>
-            <p>• <b>Privacy:</b> All conversions happen locally. Your files are never uploaded.</p>
-            <p>• <b>Security:</b> 100% browser-side processing for data safety.</p>
-            <p>• <b>Opening EPS Files:</b> Browsers cannot preview EPS directly. Please use Adobe Illustrator, CorelDRAW, Inkscape, or an Online EPS Viewer to open these files.</p>
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p>At <b>MyCloudConvert</b>, your privacy is our top priority:</p>
+            <ul>
+                <li><b>No Uploads:</b> Your files never leave your computer.</li>
+                <li><b>Local Processing:</b> Conversion happens entirely inside your browser.</li>
+                <li><b>No Tracking:</b> We do not store your data or personal information.</li>
+            </ul>
+            <p style="font-size: 0.8rem; color: #888;">Your security is 100% guaranteed by local-side execution.</p>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('contactModal')">&times;</span>
+            <h2>Contact Us</h2>
+            <p>Have any questions or feedback? Reach out to us:</p>
+            <p>📧 Email: <a href="mailto:usyed8361@gmail.com" style="color:var(--primary); font-weight:bold; text-decoration:none;">usyed8361@gmail.com</a></p>
+            <p>📍 Support: 24/7 Online Support</p>
+            <hr style="border:0; border-top:1px solid #eee;">
+            <p style="text-align:center; color:#666;">Thank you for using MyCloudConvert!</p>
         </div>
     </div>
 
     <footer>
-        &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
+        &copy; 2026 MyCloudConvert | 
+        <a onclick="openModal('privacyModal')">Privacy Policy</a> | 
+        <a onclick="openModal('contactModal')">Contact Us</a>
     </footer>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = "none";
+            }
+        }
+
         function updateFileName(event) { 
             const file = event.target.files[0];
             if (file) { 
                 document.getElementById('fileNameDisplay').innerText = "Selected: " + file.name; 
-                const extension = file.name.split('.').pop().toLowerCase();
+                const ext = file.name.split('.').pop().toLowerCase();
                 const fromSelect = document.getElementById('fromFormat');
-                let targetValue = extension;
-                if (extension === 'jpeg') targetValue = 'jpg';
-                let exists = false;
-                for (let i = 0; i < fromSelect.options.length; i++) {
-                    if (fromSelect.options[i].value === targetValue) {
-                        fromSelect.value = targetValue;
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) fromSelect.value = "auto";
+                fromSelect.value = (ext === 'jpeg') ? 'jpg' : (['jpg','png','webp','pdf','heic','svg'].includes(ext) ? ext : 'auto');
             } 
         }
 
@@ -125,15 +131,14 @@
             const status = document.getElementById('status');
             const file = fileInput.files[0];
 
-            if (!file) { status.innerText = "Please select a file first!"; return; }
+            if (!file) { status.innerText = "Please select a file first!"; status.style.color="red"; return; }
             status.style.color = "black"; status.innerText = "Processing...";
 
             try {
                 let finalBlob;
-
                 if (file.name.toLowerCase().endsWith('.heic')) {
                     let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
-                    const blob = await heic2any({ blob: file, toType: outputMime, quality: 0.7 });
+                    const blob = await heic2any({ blob: file, toType: outputMime });
                     finalBlob = Array.isArray(blob) ? blob[0] : blob;
                 } 
                 else if (targetFormat === 'pdf') {
@@ -148,8 +153,8 @@
                     finalBlob = await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><image href="${e.target.result}" width="500" height="500"/></svg>`;
-                            resolve(new Blob([svgString], { type: 'image/svg+xml' }));
+                            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><image href="${e.target.result}" width="100%" height="100%"/></svg>`;
+                            resolve(new Blob([svg], { type: 'image/svg+xml' }));
                         };
                         reader.readAsDataURL(file);
                     });
@@ -163,26 +168,19 @@
                                 const canvas = document.createElement('canvas');
                                 canvas.width = img.width; canvas.height = img.height;
                                 canvas.getContext('2d').drawImage(img, 0, 0);
-                                let mimeType = (targetFormat === 'jpg') ? 'image/jpeg' : `image/${targetFormat}`;
-                                canvas.toBlob((blob) => resolve(blob), mimeType);
+                                canvas.toBlob((blob) => resolve(blob), `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
                             };
                             img.src = e.target.result;
                         };
                         reader.readAsDataURL(file);
                     });
                 }
-
-                downloadBlob(finalBlob, `converted.${targetFormat}`);
-                status.style.color = "green"; status.innerText = "✅ Success! Download started.";
+                const url = URL.createObjectURL(finalBlob);
+                const a = document.createElement('a'); a.href = url; a.download = `converted.${targetFormat}`; a.click();
+                status.style.color = "green"; status.innerText = "✅ Success! Conversion Complete.";
             } catch (err) {
                 status.style.color = "red"; status.innerText = "Error: " + err.message;
             }
-        }
-
-        function downloadBlob(blob, name) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = name; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body></html>
