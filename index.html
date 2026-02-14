@@ -15,7 +15,6 @@
         .container { max-width: 950px; width: 95%; margin: 40px auto 20px auto; text-align: center; background: white; padding: 30px 50px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .upload-box { border: 2px dashed #ccc; padding: 45px 20px; margin: 25px 0; border-radius: 10px; cursor: pointer; }
         
-        /* Fixed Scrolling System with Max-Height */
         .custom-select { 
             padding: 12px; 
             font-size: 1rem; 
@@ -25,11 +24,6 @@
             width: 220px; 
             cursor: pointer; 
             background: white;
-        }
-
-        /* Standard browser dropdown scroll behavior */
-        select option {
-            padding: 10px;
         }
 
         .info-section { max-width: 950px; margin: 0 auto 30px auto; padding: 0 20px; }
@@ -148,11 +142,12 @@
 
             try {
                 const isHEICInput = file.name.toLowerCase().endsWith('.heic');
+                let finalBlob;
 
                 if (isHEICInput) {
                     let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
                     const blob = await heic2any({ blob: file, toType: outputMime, quality: 0.7 });
-                    downloadBlob(Array.isArray(blob) ? blob[0] : blob, `converted.${targetFormat}`);
+                    finalBlob = Array.isArray(blob) ? blob[0] : blob;
                 } 
                 else if (targetFormat === 'pdf') {
                     const pdfDoc = await PDFLib.PDFDocument.create();
@@ -160,22 +155,40 @@
                     const img = (file.type === "image/png") ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
                     const page = pdfDoc.addPage([img.width, img.height]);
                     page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
-                    downloadBlob(new Blob([await pdfDoc.save()]), "converted.pdf");
+                    finalBlob = new Blob([await pdfDoc.save()], { type: 'application/pdf' });
+                }
+                else if (targetFormat === 'svg') {
+                    finalBlob = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}"><image href="${e.target.result}" width="${img.width}" height="${img.height}"/></svg>`;
+                                resolve(new Blob([svgString], { type: 'image/svg+xml' }));
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
                 }
                 else {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width; canvas.height = img.height;
-                            canvas.getContext('2d').drawImage(img, 0, 0);
-                            canvas.toBlob((blob) => downloadBlob(blob, `converted.${targetFormat}`), `image/jpeg`);
+                    finalBlob = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.width; canvas.height = img.height;
+                                canvas.getContext('2d').drawImage(img, 0, 0);
+                                canvas.toBlob((blob) => resolve(blob), `image/jpeg`);
+                            };
+                            img.src = e.target.result;
                         };
-                        img.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                        reader.readAsDataURL(file);
+                    });
                 }
+
+                downloadBlob(finalBlob, `converted.${targetFormat}`);
                 status.style.color = "green"; status.innerText = "✅ Success! Download started.";
             } catch (err) {
                 status.style.color = "red"; status.innerText = "Error: " + err.message;
@@ -185,6 +198,7 @@
         function downloadBlob(blob, name) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body></html>
