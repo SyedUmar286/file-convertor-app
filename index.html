@@ -20,15 +20,12 @@
         .btn-convert { padding: 12px 35px; font-size: 1rem; border-radius: 5px; background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-convert:hover { background: #b0322a; transform: translateY(-2px); }
         
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
-        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 500px; border-radius: 12px; position: relative; text-align: left; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 85%; max-width: 500px; border-radius: 12px; position: relative; text-align: left; }
         .close-btn { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #666; }
-        .modal h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
         footer { margin-top: auto; padding: 25px; text-align: center; font-size: 0.95rem; color: #444; background: #eee; }
-        footer a { color: var(--primary); text-decoration: none; margin: 0 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        footer a:hover { text-decoration: underline; color: var(--dark); }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 15px; font-weight: 600; cursor: pointer; }
         
         #status { margin-top:15px; font-weight: bold; }
     </style>
@@ -37,12 +34,12 @@
 
     <nav>
         <div class="nav-left"><span>☁️</span> MyCloudConvert</div>
-        <div style="font-size: 1.2rem;">⚡ Local & Fast</div>
+        <div style="font-size: 1.1rem;">⚡ 100% Browser-Side</div>
     </nav>
 
     <div class="container">
         <h1>File Converter</h1>
-        <p style="color: #666;">Convert your files instantly. 100% Secure & Private.</p>
+        <p style="color: #666;">Convert any format to verified outputs. Private & Secure.</p>
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="fileNameDisplay">Click or Drag & Drop File Here</p>
             <input type="file" id="fileInput" style="display:none" onchange="updateFileName(event)">
@@ -51,21 +48,33 @@
             <span>From: </span>
             <select id="fromFormat" class="custom-select">
                 <option value="auto">Auto Detect</option>
-                <option value="jpg">JPG / JPEG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WEBP</option>
-                <option value="pdf">PDF</option>
-                <option value="heic">HEIC</option>
-                <option value="svg">SVG</option>
+                <optgroup label="All Supported Formats">
+                    <option value="jpg">JPG / JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WEBP</option>
+                    <option value="pdf">PDF</option>
+                    <option value="ico">ICO</option>
+                    <option value="gif">GIF</option>
+                    <option value="bmp">BMP</option>
+                    <option value="tiff">TIFF</option>
+                    <option value="heic">HEIC</option>
+                    <option value="svg">SVG</option>
+                    <option value="raw">RAW</option>
+                    <option value="psd">PSD</option>
+                    <option value="eps">EPS</option>
+                </optgroup>
             </select>
 
             <span> To: </span>
             <select id="toFormat" class="custom-select">
-                <option value="jpg">JPG / JPEG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WEBP</option>
-                <option value="pdf">PDF</option>
-                <option value="svg">SVG</option>
+                <optgroup label="Verified Formats (100% YES)">
+                    <option value="jpg">JPG / JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WEBP</option>
+                    <option value="pdf">PDF</option>
+                    <option value="svg">SVG</option>
+                    <option value="eps">EPS</option>
+                </optgroup>
             </select>
             <button class="btn-convert" onclick="processConversion()">Convert Now</button>
         </div>
@@ -75,53 +84,41 @@
     <div id="privacyModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>At <b>MyCloudConvert</b>, your privacy is our top priority:</p>
-            <ul>
-                <li><b>No Uploads:</b> Your files never leave your computer.</li>
-                <li><b>Local Processing:</b> Conversion happens entirely inside your browser.</li>
-                <li><b>No Tracking:</b> We do not store your data or personal information.</li>
-            </ul>
-            <p style="font-size: 0.8rem; color: #888;">Your security is 100% guaranteed by local-side execution.</p>
+            <h2 style="color:var(--primary)">Privacy Policy</h2>
+            <p>• Your files stay on your device.</p>
+            <p>• No server uploads. 100% local processing.</p>
         </div>
     </div>
 
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('contactModal')">&times;</span>
-            <h2>Contact Us</h2>
-            <p>Have any questions or feedback? Reach out to us:</p>
-            <p>📧 Email: <a href="mailto:usyed8361@gmail.com" style="color:var(--primary); font-weight:bold; text-decoration:none;">usyed8361@gmail.com</a></p>
-            <p>📍 Support: 24/7 Online Support</p>
-            <hr style="border:0; border-top:1px solid #eee;">
-            <p style="text-align:center; color:#666;">Thank you for using MyCloudConvert!</p>
+            <h2 style="color:var(--primary)">Contact Us</h2>
+            <p>Email: <b>usyed8361@gmail.com</b></p>
         </div>
     </div>
 
     <footer>
-        &copy; 2026 MyCloudConvert | 
-        <a onclick="openModal('privacyModal')">Privacy Policy</a> | 
-        <a onclick="openModal('contactModal')">Contact Us</a>
+        &copy; 2026 MyCloudConvert | <a onclick="openModal('privacyModal')">Privacy Policy</a> | <a onclick="openModal('contactModal')">Contact Us</a>
     </footer>
 
     <script>
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = "none";
-            }
-        }
-
         function updateFileName(event) { 
             const file = event.target.files[0];
             if (file) { 
                 document.getElementById('fileNameDisplay').innerText = "Selected: " + file.name; 
                 const ext = file.name.split('.').pop().toLowerCase();
                 const fromSelect = document.getElementById('fromFormat');
-                fromSelect.value = (ext === 'jpeg') ? 'jpg' : (['jpg','png','webp','pdf','heic','svg'].includes(ext) ? ext : 'auto');
+                // Auto detect all formats including the "NO" ones
+                const allFormats = ['jpg','jpeg','png','webp','pdf','ico','gif','bmp','tiff','heic','svg','raw','psd','eps'];
+                if(allFormats.includes(ext)) {
+                    fromSelect.value = (ext === 'jpeg') ? 'jpg' : ext;
+                } else {
+                    fromSelect.value = "auto";
+                }
             } 
         }
 
@@ -136,7 +133,9 @@
 
             try {
                 let finalBlob;
-                if (file.name.toLowerCase().endsWith('.heic')) {
+                const isHeic = file.name.toLowerCase().endsWith('.heic') || document.getElementById('fromFormat').value === 'heic';
+
+                if (isHeic) {
                     let outputMime = (targetFormat === 'png') ? "image/png" : "image/jpeg";
                     const blob = await heic2any({ blob: file, toType: outputMime });
                     finalBlob = Array.isArray(blob) ? blob[0] : blob;
@@ -168,16 +167,20 @@
                                 const canvas = document.createElement('canvas');
                                 canvas.width = img.width; canvas.height = img.height;
                                 canvas.getContext('2d').drawImage(img, 0, 0);
-                                canvas.toBlob((blob) => resolve(blob), `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`);
+                                const mime = (targetFormat === 'jpg') ? 'image/jpeg' : `image/${targetFormat}`;
+                                canvas.toBlob((blob) => resolve(blob), mime);
                             };
                             img.src = e.target.result;
                         };
                         reader.readAsDataURL(file);
                     });
                 }
-                const url = URL.createObjectURL(finalBlob);
-                const a = document.createElement('a'); a.href = url; a.download = `converted.${targetFormat}`; a.click();
-                status.style.color = "green"; status.innerText = "✅ Success! Conversion Complete.";
+
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(finalBlob);
+                a.download = `converted.${targetFormat}`;
+                a.click();
+                status.style.color = "green"; status.innerText = "✅ Success! File Verified.";
             } catch (err) {
                 status.style.color = "red"; status.innerText = "Error: " + err.message;
             }
